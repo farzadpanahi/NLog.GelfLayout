@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>NLog.GelfLayout</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <projectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</projectUrl>
+    <licenseUrl>https://github.com/farzadpanahi/NLog.GelfLayout/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Initial release.</releaseNotes>
+    <copyright>Copyright 2013</copyright>
+    <tags>gelf graylog2 nlog</tags>
+  </metadata>
+</package>
