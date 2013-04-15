@@ -44,8 +44,11 @@ For instance the following configuration writes log messages to a [RabbitMQ] Exc
 
 In this example there would be a [Graylog2] server that consumes the queued [GELF] messages. 
 
+## Credits
+[GELF] converter module is all taken from [Gelf4NLog] by [Ozan Seymen](https://github.com/seymen)
 
 [NLog]: http://nlog-project.org/
 [GrayLog2]: http://graylog2.org/
 [Gelf]: http://graylog2.org/about/gelf
+[Gelf4NLog]: https://github.com/seymen/Gelf4NLog
 [RabbitMQ]: http://github.com/haf/NLog.RabbitMQ
