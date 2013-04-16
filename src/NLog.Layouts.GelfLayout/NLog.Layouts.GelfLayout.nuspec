@@ -7,7 +7,7 @@
     <authors>$author$</authors>
     <owners>$author$</owners>
     <projectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</projectUrl>
-    <licenseUrl>https://github.com/farzadpanahi/NLog.GelfLayout/LICENSE</licenseUrl>
+    <licenseUrl>https://raw.github.com/farzadpanahi/NLog.GelfLayout/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Initial release.</releaseNotes>
