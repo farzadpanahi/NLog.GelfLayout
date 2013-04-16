@@ -6,7 +6,7 @@ GelfLayout is a custom layout renderer for [NLog] to format log meessages as [GE
 ```
 PM> Install-Package NLog.GelfLayout
 ```
-Please note that the nuget package at the moment is only compiled for the latest .Net framework 4.5.
+Please note that the [NuGet package](https://nuget.org/packages/NLog.GelfLayout/) (at the moment) is only compiled for the latest .Net framework 4.5.
 
 ### NLog Configuration
 1. Add ```<add assembly="NLog.Layouts.GelfLayout" />``` to ```<extensions>``` element in NLog.config
