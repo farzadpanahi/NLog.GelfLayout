@@ -10,7 +10,7 @@
     <licenseUrl>https://raw.github.com/farzadpanahi/NLog.GelfLayout/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Initial release.</releaseNotes>
+    <releaseNotes>Fixed license URL.</releaseNotes>
     <copyright>Copyright 2013</copyright>
     <tags>gelf graylog2 nlog</tags>
   </metadata>
