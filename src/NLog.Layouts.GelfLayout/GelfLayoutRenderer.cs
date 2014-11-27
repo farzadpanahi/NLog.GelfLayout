@@ -18,11 +18,11 @@ namespace NLog.Layouts.GelfLayout
             _converter = new GelfConverter();
         }
 
-        public string Facility { get; set; }
+        public Layout Facility { get; set; }
 
         protected override void Append(StringBuilder builder, LogEventInfo logEvent)
         {
-            var jsonObject = _converter.GetGelfJson(logEvent, Facility);
+            var jsonObject = _converter.GetGelfJson(logEvent, Facility.Render(logEvent));
             if (jsonObject == null) return;
             var jsonString = jsonObject.ToString(Formatting.None, null);
             builder.Append(jsonString);
