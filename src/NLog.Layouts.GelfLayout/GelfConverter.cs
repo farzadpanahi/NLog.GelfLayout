@@ -95,25 +95,25 @@ namespace NLog.Layouts.GelfLayout
         /// <returns></returns>
         private static int GetSeverityLevel(LogLevel level)
         {
+            if (level == LogLevel.Trace)
+            {
+                return 7;
+            }
             if (level == LogLevel.Debug)
             {
                 return 7;
             }
-            if (level == LogLevel.Fatal)
-            {
-                return 2;
-            }
             if (level == LogLevel.Info)
-            {
-                return 6;
-            }
-            if (level == LogLevel.Trace)
             {
                 return 6;
             }
             if (level == LogLevel.Warn)
             {
                 return 4;
+            }
+            if (level == LogLevel.Fatal)
+            {
+                return 2;
             }
 
             return 3; //LogLevel.Error
