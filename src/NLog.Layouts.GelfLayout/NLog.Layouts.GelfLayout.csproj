@@ -60,6 +60,7 @@
     <Compile Include="GelfLayoutRenderer.cs" />
     <Compile Include="GelfMessage.cs" />
     <Compile Include="IConverter.cs" />
+    <Compile Include="LogLevelExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
