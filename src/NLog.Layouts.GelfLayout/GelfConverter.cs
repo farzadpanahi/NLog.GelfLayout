@@ -23,7 +23,7 @@ namespace NLog.Layouts.GelfLayout
             {
                 logEventInfo.Properties.Add("ExceptionSource", logEventInfo.Exception.Source);
                 logEventInfo.Properties.Add("ExceptionMessage", logEventInfo.Exception.Message);
-                logEventInfo.Properties.Add("StackTrace", logEventInfo.Exception.StackTrace);
+                logEventInfo.Properties.Add("StackTrace", logEventInfo.Exception.ToString());
             }
 
             //Figure out the short message
