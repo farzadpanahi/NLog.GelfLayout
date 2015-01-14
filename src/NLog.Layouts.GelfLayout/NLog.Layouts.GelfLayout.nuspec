@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Upgraded NLog and JSON libraries. Prints detailed excpetion stackstrace including inner exceptions.</releaseNotes>
+    <releaseNotes>Updated ordinal values for log levels thanks to @neris</releaseNotes>
     <copyright>Copyright 2015</copyright>
     <tags>gelf graylog2 nlog</tags>
   </metadata>
