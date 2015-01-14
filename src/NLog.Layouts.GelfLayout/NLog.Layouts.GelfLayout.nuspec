@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Updated ordinal values for log levels thanks to @neris</releaseNotes>
+    <releaseNotes>Facility supports Layout format now thanks to @neris</releaseNotes>
     <copyright>Copyright 2015</copyright>
     <tags>gelf graylog2 nlog</tags>
   </metadata>
