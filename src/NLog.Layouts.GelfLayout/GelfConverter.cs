@@ -23,7 +23,7 @@ namespace NLog.Layouts.GelfLayout
             {
                 logEventInfo.Properties.Add("ExceptionSource", logEventInfo.Exception.Source);
                 logEventInfo.Properties.Add("ExceptionMessage", logEventInfo.Exception.Message);
-                logEventInfo.Properties.Add("StackTrace", logEventInfo.Exception.StackTrace);
+                logEventInfo.Properties.Add("StackTrace", logEventInfo.Exception.ToString());
             }
 
             //Figure out the short message
@@ -42,7 +42,7 @@ namespace NLog.Layouts.GelfLayout
                                       ShortMessage = shortMessage,
                                       FullMessage = logEventMessage,
                                       Timestamp = logEventInfo.TimeStamp,
-                                      Level = GetSeverityLevel(logEventInfo.Level),
+                                      Level = logEventInfo.Level.GetOrdinal(),
                                       //Spec says: facility must be set by the client to "GELF" if empty
                                       Facility = (string.IsNullOrEmpty(facility) ? "GELF" : facility),
                                       Line = (logEventInfo.UserStackFrame != null)
@@ -88,35 +88,5 @@ namespace NLog.Layouts.GelfLayout
             jObject.Add(key, value);
         }
 
-        /// <summary>
-        /// Values from SyslogSeverity enum here: http://marc.info/?l=log4net-dev&m=109519564630799
-        /// </summary>
-        /// <param name="level"></param>
-        /// <returns></returns>
-        private static int GetSeverityLevel(LogLevel level)
-        {
-            if (level == LogLevel.Debug)
-            {
-                return 7;
-            }
-            if (level == LogLevel.Fatal)
-            {
-                return 2;
-            }
-            if (level == LogLevel.Info)
-            {
-                return 6;
-            }
-            if (level == LogLevel.Trace)
-            {
-                return 6;
-            }
-            if (level == LogLevel.Warn)
-            {
-                return 4;
-            }
-
-            return 3; //LogLevel.Error
-        }
     }
 }

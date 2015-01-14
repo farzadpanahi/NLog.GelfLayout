@@ -6,12 +6,12 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <projectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</projectUrl>
     <licenseUrl>https://raw.github.com/farzadpanahi/NLog.GelfLayout/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Fixed license URL.</releaseNotes>
-    <copyright>Copyright 2013</copyright>
+    <releaseNotes>Updated ordinal values for log levels thanks to @neris</releaseNotes>
+    <copyright>Copyright 2015</copyright>
     <tags>gelf graylog2 nlog</tags>
   </metadata>
 </package>

@@ -49,6 +49,6 @@ In this example there would be a [Graylog2] server that consumes the queued [GEL
 
 [NLog]: http://nlog-project.org/
 [GrayLog2]: http://graylog2.org/
-[Gelf]: http://graylog2.org/about/gelf
+[Gelf]: https://www.graylog2.org/resources/gelf/specification
 [Gelf4NLog]: https://github.com/seymen/Gelf4NLog
 [RabbitMQ]: http://github.com/haf/NLog.RabbitMQ
