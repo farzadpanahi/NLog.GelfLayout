@@ -1,4 +1,7 @@
 # NLog.GelfLayout
+[![Version](https://img.shields.io/nuget/v/NLog.GelfLayout.svg)](https://www.nuget.org/packages/NLog.GelfLayout) 
+
+
 GelfLayout is a custom layout renderer for [NLog] to format log meessages as [GELF] Json structures.
 
 ## Usage
