@@ -10,7 +10,8 @@ namespace NLog.Layouts.GelfLayout
     public class GelfConverter : IConverter
     {
         private const int ShortMessageMaxLength = 250;
-        private const string GelfVersion = "1.0";
+        private const string GelfVersion = "1.1";
+        private static DateTime UnixDateStart = new DateTime(1970,1,1,0,0,0,DateTimeKind.Utc);
 
         public JObject GetGelfJson(LogEventInfo logEventInfo, string facility)
         {
@@ -41,14 +42,13 @@ namespace NLog.Layouts.GelfLayout
                                       Host = Dns.GetHostName(),
                                       ShortMessage = shortMessage,
                                       FullMessage = logEventMessage,
-                                      Timestamp = logEventInfo.TimeStamp,
+                                      Timestamp = ToUnixTimeStamp(logEventInfo.TimeStamp),
                                       Level = logEventInfo.Level.GetOrdinal(),
                                       //Spec says: facility must be set by the client to "GELF" if empty
                                       Facility = (string.IsNullOrEmpty(facility) ? "GELF" : facility),
                                       Line = (logEventInfo.UserStackFrame != null)
-                                                 ? logEventInfo.UserStackFrame.GetFileLineNumber().ToString(
-                                                     CultureInfo.InvariantCulture)
-                                                 : string.Empty,
+                                                 ? logEventInfo.UserStackFrame.GetFileLineNumber()
+                                                 : 0,
                                       File = (logEventInfo.UserStackFrame != null)
                                                  ? logEventInfo.UserStackFrame.GetFileName()
                                                  : string.Empty,
@@ -69,6 +69,11 @@ namespace NLog.Layouts.GelfLayout
             return jsonObject;
         }
 
+        public static decimal ToUnixTimeStamp(DateTime timeStamp)
+        {
+            return Convert.ToDecimal(timeStamp.ToUniversalTime().Subtract(UnixDateStart).TotalSeconds);
+        }
+
         private static void AddAdditionalField(IDictionary<string, JToken> jObject, KeyValuePair<object, object> property)
         {
             var key = property.Key as string;
@@ -78,8 +83,9 @@ namespace NLog.Layouts.GelfLayout
 
             //According to the GELF spec, libraries should NOT allow to send id as additional field (_id)
             //Server MUST skip the field because it could override the MongoDB _key field
+            //id field overriten here as _idx to get around the issue id_ not a valid field and will be ignored by graylog
             if (key.Equals("id", StringComparison.OrdinalIgnoreCase))
-                key = "id_";
+                key = "_idx";
 
             //According to the GELF spec, additional field keys should start with '_' to avoid collision
             if (!key.StartsWith("_", StringComparison.OrdinalIgnoreCase))
