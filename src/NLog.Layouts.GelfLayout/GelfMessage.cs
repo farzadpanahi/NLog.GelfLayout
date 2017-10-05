@@ -22,13 +22,13 @@ namespace NLog.Layouts.GelfLayout
         public int Level { get; set; }
 
         [JsonProperty("line")]
-        public string Line { get; set; }
+        public int Line { get; set; }
 
         [JsonProperty("short_message")]
         public string ShortMessage { get; set; }
 
         [JsonProperty("timestamp")]
-        public DateTime Timestamp { get; set; }
+        public decimal Timestamp { get; set; }
 
         [JsonProperty("version")]
         public string Version { get; set; }
