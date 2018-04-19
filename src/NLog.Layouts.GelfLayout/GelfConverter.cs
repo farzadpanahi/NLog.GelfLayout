@@ -1,9 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Net;
-using NLog;
-using Newtonsoft.Json.Linq;
 
 namespace NLog.Layouts.GelfLayout
 {
@@ -11,7 +9,7 @@ namespace NLog.Layouts.GelfLayout
     {
         private const int ShortMessageMaxLength = 250;
         private const string GelfVersion = "1.1";
-        private static DateTime UnixDateStart = new DateTime(1970,1,1,0,0,0,DateTimeKind.Utc);
+        private static DateTime UnixDateStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public JObject GetGelfJson(LogEventInfo logEventInfo, string facility)
         {
@@ -37,22 +35,22 @@ namespace NLog.Layouts.GelfLayout
             //Construct the instance of GelfMessage
             //See https://github.com/Graylog2/graylog2-docs/wiki/GELF "Specification (version 1.0)"
             var gelfMessage = new GelfMessage
-                                  {
-                                      Version = GelfVersion,
-                                      Host = Dns.GetHostName(),
-                                      ShortMessage = shortMessage,
-                                      FullMessage = logEventMessage,
-                                      Timestamp = ToUnixTimeStamp(logEventInfo.TimeStamp),
-                                      Level = logEventInfo.Level.GetOrdinal(),
-                                      //Spec says: facility must be set by the client to "GELF" if empty
-                                      Facility = (string.IsNullOrEmpty(facility) ? "GELF" : facility),
-                                      Line = (logEventInfo.UserStackFrame != null)
+            {
+                Version = GelfVersion,
+                Host = Dns.GetHostName(),
+                ShortMessage = shortMessage,
+                FullMessage = logEventMessage,
+                Timestamp = ToUnixTimeStamp(logEventInfo.TimeStamp),
+                Level = logEventInfo.Level.GetOrdinal(),
+                //Spec says: facility must be set by the client to "GELF" if empty
+                Facility = (string.IsNullOrEmpty(facility) ? "GELF" : facility),
+                Line = (logEventInfo.UserStackFrame != null)
                                                  ? logEventInfo.UserStackFrame.GetFileLineNumber()
                                                  : 0,
-                                      File = (logEventInfo.UserStackFrame != null)
+                File = (logEventInfo.UserStackFrame != null)
                                                  ? logEventInfo.UserStackFrame.GetFileName()
                                                  : string.Empty,
-                                  };
+            };
 
             //Convert to JSON
             var jsonObject = JObject.FromObject(gelfMessage);
@@ -77,7 +75,6 @@ namespace NLog.Layouts.GelfLayout
         private static void AddAdditionalField(IDictionary<string, JToken> jObject, KeyValuePair<object, object> property)
         {
             var key = property.Key as string;
-            var value = property.Value as string;
 
             if (key == null) return;
 
@@ -91,7 +88,18 @@ namespace NLog.Layouts.GelfLayout
             if (!key.StartsWith("_", StringComparison.OrdinalIgnoreCase))
                 key = "_" + key;
 
-            jObject.Add(key, value);
+            if (property.Value is Enum)
+            {
+                jObject.Add(key, property.Value.ToString());
+            }
+            else if (property.Value is DateTime)
+            {
+                jObject.Add(key, ToUnixTimeStamp((DateTime)property.Value));
+            }
+            else
+            {
+                jObject.Add(key, JToken.FromObject(property.Value));
+            }
         }
 
     }
