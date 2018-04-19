@@ -17,12 +17,11 @@ Please note that the [NuGet package](https://nuget.org/packages/NLog.GelfLayout/
 
 ### Sample Usage with RabbitMQ Target
 You can configure this layout for [NLog] Targets that respect Layout attribute. 
-For instance the following configuration writes log messages to a [RabbitMQ] Exchange in [GELF] format.
+For instance the following configuration writes log messages to a [RabbitMQ-adolya] Exchange in [GELF] format.
 
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
-<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-      xmlns:haf="https://github.com/haf/NLog.RabbitMQ/raw/master/src/schemas/NLog.RabbitMQ.xsd" >
+<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
   <extensions>
     <add assembly="NLog.Targets.RabbitMQ" />
     <add assembly="NLog.Layouts.GelfLayout" />
@@ -54,4 +53,5 @@ In this example there would be a [Graylog2] server that consumes the queued [GEL
 [GrayLog2]: http://graylog2.org/
 [Gelf]: https://www.graylog2.org/resources/gelf/specification
 [Gelf4NLog]: https://github.com/seymen/Gelf4NLog
-[RabbitMQ]: http://github.com/haf/NLog.RabbitMQ
+[RabbitMQ-haf]: https://github.com/haf/NLog.RabbitMQ
+[RabbitMQ-adolya]: https://www.nuget.org/packages/Nlog.RabbitMQ.Target/
