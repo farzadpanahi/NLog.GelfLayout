@@ -13,7 +13,7 @@ namespace NLog.Layouts.GelfLayout
 
         private static HashSet<string> ExcludePropertyKeys = new HashSet<string>(new string[] { "LoggerName", "ExceptionSource", "ExceptionMessage", "StackTrace" });
 
-        private readonly string _hostName = Dns.GetHostName();  // Expensive lookup, only once
+        private string _hostName;
 
         public JObject GetGelfJson(LogEventInfo logEventInfo, string facility)
         {
@@ -33,7 +33,7 @@ namespace NLog.Layouts.GelfLayout
             var gelfMessage = new GelfMessage
             {
                 Version = GelfVersion,
-                Host = _hostName,
+                Host = (_hostName ?? (_hostName = GetHostName())) ?? "UnknownHost",
                 ShortMessage = shortMessage,
                 FullMessage = logEventMessage,
                 Timestamp = ToUnixTimeStamp(logEventInfo.TimeStamp),
@@ -81,6 +81,22 @@ namespace NLog.Layouts.GelfLayout
         public static decimal ToUnixTimeStamp(DateTime timeStamp)
         {
             return Convert.ToDecimal(timeStamp.ToUniversalTime().Subtract(UnixDateStart).TotalSeconds);
+        }
+
+        private static string GetHostName()
+        {
+            try
+            {
+                return Dns.GetHostName();
+            }
+            catch (Exception ex)
+            {
+                Common.InternalLogger.Error($"GELF HostName Lookup Failed: {ex}");
+                if (LogManager.ThrowExceptions)
+                    throw;
+
+                return null;
+            }
         }
 
         private static void AddAdditionalField(IDictionary<string, JToken> jObject, string key, object propertyValue)
