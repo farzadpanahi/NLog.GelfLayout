@@ -24,11 +24,7 @@
     <AssemblyOriginatorKeyFile>NLog.Layouts.GelfLayout.snk</AssemblyOriginatorKeyFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <PackageReference Include="NLog" Version="4.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="6.0.8" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' != 'net45' ">
+  <ItemGroup>
     <PackageReference Include="NLog" Version="4.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
