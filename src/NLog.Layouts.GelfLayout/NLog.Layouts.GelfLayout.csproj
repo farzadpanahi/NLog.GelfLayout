@@ -7,11 +7,13 @@
     <Title>NLog.Layouts.GelfLayout</Title>
     <PackageId>NLog.GelfLayout</PackageId>
     <Company>Farzad Panahi</Company>
-    <Authors>Farzad Panahi</Authors>
+    <Authors>Farzad Panahi, Tamas Kiss</Authors>
     <Description>Gelf layout renderer for NLog</Description>
-    <Copyright>Copyright 2015</Copyright>
+    <Copyright>Copyright 2018</Copyright>
 
     <PackageReleaseNotes>
+      Fixed timestamp type to be conform with Gelf specification
+      Fixed extra property rendering for non string types to Gelf message
       Added NetCore support
     </PackageReleaseNotes>
     <PackageTags>NLog;Gelf;graylog2;Log;Logging</PackageTags>
