@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.IO;
+using System.Globalization;
 using System.Text;
-using System.Web;
-using NLog;
 using NLog.LayoutRenderers;
+using NLog.Config;
 using Newtonsoft.Json;
 
 namespace NLog.Layouts.GelfLayout
 {
     [LayoutRenderer("gelf")]
+    [ThreadAgnostic]
     public class GelfLayoutRenderer : LayoutRenderer
     {
+        private static readonly JsonConverter[] _emptyJsonConverters = new JsonConverter[0];
+
         private readonly IConverter _converter;
         public GelfLayoutRenderer()
         {
@@ -24,8 +25,24 @@ namespace NLog.Layouts.GelfLayout
         {
             var jsonObject = _converter.GetGelfJson(logEvent, Facility.Render(logEvent));
             if (jsonObject == null) return;
-            var jsonString = jsonObject.ToString(Formatting.None, null);
-            builder.Append(jsonString);
+
+            int orgLength = builder.Length;
+
+            try
+            {
+                // Write directly to StringBuilder, instead of allocating string first
+                using (StringWriter sw = new StringWriter(builder, CultureInfo.InvariantCulture))
+                {
+                    JsonTextWriter jw = new JsonTextWriter(sw);
+                    jw.Formatting = Formatting.None;
+                    jsonObject.WriteTo(jw, _emptyJsonConverters);
+                }
+            }
+            catch
+            {
+                builder.Length = orgLength; // Rewind, truncate
+                throw;
+            }
         }
     }
 }

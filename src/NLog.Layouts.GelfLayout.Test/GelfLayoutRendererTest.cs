@@ -37,7 +37,7 @@ namespace NLog.Layouts.GelfLayout.Test
 
             var renderedGelf = gelfRenderer.Render(logEvent);
             var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
-            var expectedGelf = string.Format(
+            var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
                 "{{\"facility\":\"{0}\","
                     + "\"file\":\"\","
                     + "\"full_message\":\"{1}\","
@@ -97,7 +97,7 @@ namespace NLog.Layouts.GelfLayout.Test
 
             var renderedGelf = gelfRenderer.Render(logEvent);
             var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
-            var expectedProperties = String.Format(
+            var expectedProperties = String.Format(System.Globalization.CultureInfo.InvariantCulture,
                 "\"_{0}\":\"{1}\",\"_{2}\":{3},\"_{4}\":\"{5}\",\"_{6}\":{7}",
                 stringKey,
                 stringVal,
@@ -107,7 +107,7 @@ namespace NLog.Layouts.GelfLayout.Test
                 enumVal,
                 dateTimeKey,
                 GelfConverter.ToUnixTimeStamp(dateTimeVal));
-            var expectedGelf = string.Format(
+            var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
                 "{{\"facility\":\"{0}\","
                     + "\"file\":\"\","
                     + "\"full_message\":\"{1}\","
@@ -167,7 +167,7 @@ namespace NLog.Layouts.GelfLayout.Test
                     + "at NLog.Layouts.GelfLayout.Test.FakeException.Throw() in "
                     + exceptionPath
                     + ":line 9\"";
-            var expectedGelf = string.Format(
+            var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
                 "{{\"facility\":\"{0}\","
                     + "\"file\":\"\","
                     + "\"full_message\":\"{1}\","
