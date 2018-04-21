@@ -2,11 +2,13 @@
 using System.Globalization;
 using System.Text;
 using NLog.LayoutRenderers;
+using NLog.Config;
 using Newtonsoft.Json;
 
 namespace NLog.Layouts.GelfLayout
 {
     [LayoutRenderer("gelf")]
+    [ThreadAgnostic]
     public class GelfLayoutRenderer : LayoutRenderer
     {
         private static readonly JsonConverter[] _emptyJsonConverters = new JsonConverter[0];
