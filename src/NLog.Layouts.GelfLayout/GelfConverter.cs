@@ -11,7 +11,7 @@ namespace NLog.Layouts.GelfLayout
         private const string GelfVersion = "1.1";
         private static DateTime UnixDateStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        private static HashSet<string> ExcludePropertyKeys = new HashSet<string>(new string[] { "LoggerName", "ExceptionSource", "ExceptionMessage", "StackTrace" });
+        private static HashSet<string> ExcludePropertyKeys = new HashSet<string>(new string[] { "LoggerName", "_LoggerName", "ExceptionSource", "_ExceptionSource", "ExceptionMessage", "_ExceptionMessage", "StackTrace", "_StackTrace" }, StringComparer.OrdinalIgnoreCase);
 
         private string _hostName;
 
@@ -64,16 +64,16 @@ namespace NLog.Layouts.GelfLayout
                 }
             }
 
-            //If we are dealing with an exception, pass exception properties to LogEventInfo properties
+            //If we are dealing with an exception, pass exception properties as additional fields
             if (logEventInfo.Exception != null)
             {
-                AddAdditionalField(jsonObject, "ExceptionSource", logEventInfo.Exception.Source);
-                AddAdditionalField(jsonObject, "ExceptionMessage", logEventInfo.Exception.Message);
-                AddAdditionalField(jsonObject, "StackTrace", logEventInfo.Exception.ToString());
+                AddAdditionalField(jsonObject, "_ExceptionSource", logEventInfo.Exception.Source);
+                AddAdditionalField(jsonObject, "_ExceptionMessage", logEventInfo.Exception.Message);
+                AddAdditionalField(jsonObject, "_StackTrace", logEventInfo.Exception.ToString());
             }
 
-            //Add any other interesting data to LogEventInfo properties
-            AddAdditionalField(jsonObject, "LoggerName", logEventInfo.LoggerName);
+            //Add any other interesting data as additional fields
+            AddAdditionalField(jsonObject, "_LoggerName", logEventInfo.LoggerName);
 
             return jsonObject;
         }
