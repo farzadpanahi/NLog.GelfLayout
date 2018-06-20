@@ -121,7 +121,16 @@ namespace NLog.Layouts.GelfLayout
             }
             else
             {
-                jObject.Add(key, JToken.FromObject(propertyValue));
+                try
+                {
+                    jObject.Add(key, JToken.FromObject(propertyValue));
+                }
+                catch (Exception)
+                {
+                    Common.InternalLogger.Warn($"GELF cannot serialize message with key={key} and type={propertyValue.GetType().FullName}");
+                    if (LogManager.ThrowExceptions)
+                        throw;
+                }
             }
         }
 

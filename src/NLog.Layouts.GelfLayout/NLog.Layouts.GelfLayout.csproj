@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard2.0;netstandard1.3</TargetFrameworks>
 
-    <Version>0.3.0</Version>
+    <Version>0.3.1</Version>
     <Title>NLog.GelfLayout</Title>
     <PackageId>NLog.GelfLayout</PackageId>
     <Company>Farzad Panahi</Company>
@@ -12,9 +12,7 @@
     <Copyright>Copyright 2018</Copyright>
 
     <PackageReleaseNotes>
-      Fixed timestamp type to be conform with Gelf specification
-      Fixed extra property rendering for non string types to Gelf message
-      Added NetCore support
+      Added protection for serialization of custom fields. If a custom field throw exception during JSON serialization it will get ignored.
     </PackageReleaseNotes>
     <PackageTags>NLog;Gelf;graylog2;Log;Logging</PackageTags>
     <PackageProjectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</PackageProjectUrl>
