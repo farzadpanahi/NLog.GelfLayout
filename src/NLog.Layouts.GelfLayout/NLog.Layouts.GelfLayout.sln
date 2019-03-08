@@ -1,9 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLog.Layouts.GelfLayout", "NLog.Layouts.GelfLayout.csproj", "{03832346-A34F-47EC-AB50-BA32856B06F0}"
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.438
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLog.Layouts.GelfLayout", "NLog.Layouts.GelfLayout.csproj", "{03832346-A34F-47EC-AB50-BA32856B06F0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLog.Layouts.GelfLayout.Test", "..\NLog.Layouts.GelfLayout.Test\NLog.Layouts.GelfLayout.Test.csproj", "{602F294B-8683-447A-8DE5-A56F8FF2E53B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{080D4912-1C98-4E4E-B973-B423490230D7}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\README.md = ..\..\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,5 +29,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {43088D6D-7EC0-438A-91B5-62643BAE95FA}
 	EndGlobalSection
 EndGlobal
