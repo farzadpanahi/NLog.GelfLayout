@@ -46,6 +46,24 @@ For instance the following configuration writes log messages to a [RabbitMQ-adol
 
 In this example there would be a [Graylog2] server that consumes the queued [GELF] messages. 
 
+### Sample Usage with NLog Network Target
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+  <extensions>
+    <add assembly="NLog.Layouts.GelfLayout" />
+  </extensions>
+  
+  <targets async="true">
+	<target xsi:type="Network" name="GelfHttp" address="http://localhost:12201/gelf" layout="${gelf:facility=MyFacility}" />
+  </targets>
+
+  <rules>
+    <logger name="*" minlevel="Debug" writeTo="GelfHttp" />
+  </rules>
+</nlog>
+```
+
 ## Credits
 [GELF] converter module is all taken from [Gelf4NLog] by [Ozan Seymen](https://github.com/seymen)
 
