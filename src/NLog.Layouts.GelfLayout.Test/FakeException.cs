@@ -6,7 +6,7 @@ namespace NLog.Layouts.GelfLayout.Test
     {
         public static Exception Throw() 
         {
-            try { throw new Exception("funny exception :D", new Exception("very funny exception ::D")); }
+            try { throw new ArgumentException("funny exception :D", new Exception("very funny exception ::D")); }
             catch (Exception e) { return e; }
         }
     }
