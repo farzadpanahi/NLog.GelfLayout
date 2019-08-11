@@ -1,19 +1,13 @@
 # NLog.GelfLayout
 [![Version](https://img.shields.io/nuget/v/NLog.GelfLayout.svg)](https://www.nuget.org/packages/NLog.GelfLayout) 
 
-
-GelfLayout is a custom layout renderer for [NLog] to format log meessages as [GELF] Json structures.
+GelfLayout-package contains custom layout renderer for [NLog] to format log messages as [GELF] Json structures.
 
 ## Usage
 ### Install from Nuget
 ```
 PM> Install-Package NLog.GelfLayout
 ```
-Please note that the [NuGet package](https://nuget.org/packages/NLog.GelfLayout/) (at the moment) is only compiled for the latest .Net framework 4.5.
-
-### NLog Configuration
-1. Add ```<add assembly="NLog.Layouts.GelfLayout" />``` to ```<extensions>``` element in NLog.config
-2. Set ```layout="${gelf:facility=MyFacility}"``` attribute for ```target``` element 
 
 ### Sample Usage with RabbitMQ Target
 You can configure this layout for [NLog] Targets that respect Layout attribute. 
@@ -56,6 +50,29 @@ In this example there would be a [Graylog2] server that consumes the queued [GEL
   
   <targets async="true">
 	<target xsi:type="Network" name="GelfHttp" address="http://localhost:12201/gelf" layout="${gelf:facility=MyFacility}" />
+  </targets>
+
+  <rules>
+    <logger name="*" minlevel="Debug" writeTo="GelfHttp" />
+  </rules>
+</nlog>
+```
+
+### Sample Usage with custom extra fields
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+  <extensions>
+    <add assembly="NLog.Layouts.GelfLayout" />
+  </extensions>
+  
+  <targets async="true">
+	<target xsi:type="Network" name="GelfHttp" address="http://localhost:12201/gelf">
+		<layout type="GelfLayout" facility="MyFacility">
+			<field name="threadid" layout="${threadid}" />
+		</layout>
+	</target>
   </targets>
 
   <rules>

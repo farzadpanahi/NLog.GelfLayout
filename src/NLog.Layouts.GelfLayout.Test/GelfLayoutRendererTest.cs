@@ -39,7 +39,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
             var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
                 "{{\"facility\":\"{0}\","
-                    + "\"file\":\"\","
+                    + "\"file\":\"TestLogger\","
                     + "\"full_message\":\"{1}\","
                     + "\"host\":\"{2}\","
                     + "\"level\":{3},"
@@ -54,6 +54,46 @@ namespace NLog.Layouts.GelfLayout.Test
                 logLevel.GetOrdinal(),
                 message,
                 expectedDateTime,
+                loggerName);
+
+            Assert.AreEqual(expectedGelf, renderedGelf);
+        }
+
+        [TestMethod]
+        public void CanRenderGelf11()
+        {
+            var loggerName = "TestLogger";
+            var dateTime = DateTime.Now;
+            var message = "hello, gelf :)";
+            var logLevel = LogLevel.Info;
+            var hostname = Dns.GetHostName();
+            var gelfRenderer = new GelfLayoutRenderer();
+
+            gelfRenderer.IncludeLegacyFields = false;
+
+            var logEvent = new LogEventInfo
+            {
+                LoggerName = loggerName,
+                Level = logLevel,
+                Message = message,
+                TimeStamp = dateTime,
+            };
+
+            var renderedGelf = gelfRenderer.Render(logEvent);
+            var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
+            var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                "{{\"version\":\"1.1\","
+                    + "\"host\":\"{0}\","
+                    + "\"short_message\":\"{1}\","
+                    + "\"full_message\":\"{2}\","
+                    + "\"timestamp\":{3},"
+                    + "\"level\":{4},"
+                    + "\"_LoggerName\":\"{5}\"}}",
+                hostname,
+                message,
+                message,
+                expectedDateTime,
+                logLevel.GetOrdinal(),
                 loggerName);
 
             Assert.AreEqual(expectedGelf, renderedGelf);
@@ -109,7 +149,7 @@ namespace NLog.Layouts.GelfLayout.Test
                 GelfConverter.ToUnixTimeStamp(dateTimeVal));
             var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
                 "{{\"facility\":\"{0}\","
-                    + "\"file\":\"\","
+                    + "\"file\":\"TestLogger\","
                     + "\"full_message\":\"{1}\","
                     + "\"host\":\"{2}\","
                     + "\"level\":{3},"
@@ -162,14 +202,15 @@ namespace NLog.Layouts.GelfLayout.Test
             string expectedException =
                 "\"_ExceptionSource\":\"NLog.Layouts.GelfLayout.Test\","
                     + "\"_ExceptionMessage\":\"funny exception :D\","
-                    + "\"_StackTrace\":\"System.Exception: funny exception :D ---> System.Exception: very funny "
+                    + "\"_ExceptionType\":\"System.ArgumentException\","
+                    + "\"_StackTrace\":\"System.ArgumentException: funny exception :D ---> System.Exception: very funny "
                     + "exception ::D\\r\\n   --- End of inner exception stack trace ---\\r\\n   "
                     + "at NLog.Layouts.GelfLayout.Test.FakeException.Throw() in "
                     + exceptionPath
                     + ":line 9\"";
             var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
                 "{{\"facility\":\"{0}\","
-                    + "\"file\":\"\","
+                    + "\"file\":\"TestLogger\","
                     + "\"full_message\":\"{1}\","
                     + "\"host\":\"{2}\","
                     + "\"level\":{3},"
@@ -188,6 +229,105 @@ namespace NLog.Layouts.GelfLayout.Test
                 expectedException,
                 loggerName);
 
+            Assert.AreEqual(expectedGelf, renderedGelf);
+        }
+
+        [TestMethod]
+        public void CanRenderGelfIncludeMdlc()
+        {
+            var loggerName = "TestLogger";
+            var facility = "TestFacility";
+            var dateTime = DateTime.Now;
+            var message = "hello, gelf :)";
+            var logLevel = LogLevel.Info;
+            var hostname = Dns.GetHostName();
+            var gelfRenderer = new GelfLayoutRenderer();
+
+            gelfRenderer.Facility = facility;
+            gelfRenderer.IncludeMdlc = true;
+
+            var logEvent = new LogEventInfo
+            {
+                LoggerName = loggerName,
+                Level = logLevel,
+                Message = message,
+                TimeStamp = dateTime,
+            };
+
+            Guid requestId = Guid.NewGuid();
+            using (var mdlc = NLog.MappedDiagnosticsLogicalContext.SetScoped("RequestId", requestId))
+            {
+                var renderedGelf = gelfRenderer.Render(logEvent);
+                var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
+                var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    "{{\"facility\":\"{0}\","
+                        + "\"file\":\"TestLogger\","
+                        + "\"full_message\":\"{1}\","
+                        + "\"host\":\"{2}\","
+                        + "\"level\":{3},"
+                        + "\"line\":0,"
+                        + "\"short_message\":\"{4}\","
+                        + "\"timestamp\":{5},"
+                        + "\"version\":\"1.1\","
+                        + "\"_LoggerName\":\"{6}\","
+                        + "\"_RequestId\":\"{7}\"}}",
+                    facility,
+                    message,
+                    hostname,
+                    logLevel.GetOrdinal(),
+                    message,
+                    expectedDateTime,
+                    loggerName,
+                    requestId);
+                Assert.AreEqual(expectedGelf, renderedGelf);
+            }
+        }
+
+        [TestMethod]
+        public void CanRenderGelfAdditionalFields()
+        {
+            var loggerName = "TestLogger";
+            var facility = "TestFacility";
+            var dateTime = DateTime.Now;
+            var message = "hello, gelf :)";
+            var logLevel = LogLevel.Info;
+            var hostname = Dns.GetHostName();
+            var gelfLayout= new GelfLayout();
+
+            gelfLayout.Facility = facility;
+            gelfLayout.ExtraFields.Add(new GelfField("ThreadId", "${threadid}") { PropertyType = typeof(int) });
+
+            var logEvent = new LogEventInfo
+            {
+                LoggerName = loggerName,
+                Level = logLevel,
+                Message = message,
+                TimeStamp = dateTime,
+            };
+
+            int threadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+            var renderedGelf = gelfLayout.Render(logEvent);
+            var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
+            var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                "{{\"facility\":\"{0}\","
+                    + "\"file\":\"TestLogger\","
+                    + "\"full_message\":\"{1}\","
+                    + "\"host\":\"{2}\","
+                    + "\"level\":{3},"
+                    + "\"line\":0,"
+                    + "\"short_message\":\"{4}\","
+                    + "\"timestamp\":{5},"
+                    + "\"version\":\"1.1\","
+                    + "\"_LoggerName\":\"{6}\","
+                    + "\"_ThreadId\":{7}}}",
+                facility,
+                message,
+                hostname,
+                logLevel.GetOrdinal(),
+                message,
+                expectedDateTime,
+                loggerName,
+                threadId);
             Assert.AreEqual(expectedGelf, renderedGelf);
         }
     }
