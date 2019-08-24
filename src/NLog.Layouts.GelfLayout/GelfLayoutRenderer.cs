@@ -38,6 +38,9 @@ namespace NLog.Layouts.GelfLayout
         public bool IncludeLegacyFields { get; set; }
 
         /// <inheritdoc/>
+        public bool FixDuplicateTimestamp { get; set; }
+
+        /// <inheritdoc/>
         public Layout Facility { get; set; }
 
         IList<GelfField> IGelfConverterOptions.ExtraFields { get => ExtraFields; }

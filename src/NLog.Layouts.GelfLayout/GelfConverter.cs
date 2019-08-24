@@ -15,6 +15,8 @@ namespace NLog.Layouts.GelfLayout
         private const int FullMessageMaxLength = 16383; // Truncate due to: https://github.com/Graylog2/graylog2-server/issues/873
         private const string GelfVersion11 = "1.1";
         private static DateTime UnixDateStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private long _previousUtcTimestampTicks;
+        private long _artificialUtcTimestampTicks;
 
         private static readonly JsonConverter[] _emptyJsonConverters = new JsonConverter[0];
         private JsonSerializer JsonSerializer => _jsonSerializer ?? (_jsonSerializer = JsonSerializer.CreateDefault());
@@ -40,6 +42,21 @@ namespace NLog.Layouts.GelfLayout
                 shortMessage = shortMessage.Substring(0, ShortMessageMaxLength);
             }
 
+            // Attempt to produce unique timestamps even when low time precision (Improve sorting in Grafana)
+            var logEventUtcTimeStamp = logEventInfo.TimeStamp.ToUniversalTime();
+            if (converterOptions.FixDuplicateTimestamp)
+            {
+                var artificialUtcTimestampTicks = _artificialUtcTimestampTicks;
+                if (System.Threading.Interlocked.Read(ref _previousUtcTimestampTicks) == logEventUtcTimeStamp.Ticks)
+                {
+                    logEventUtcTimeStamp = MakeUniqueUnixTimeStamp(logEventUtcTimeStamp, artificialUtcTimestampTicks);
+                }
+                else
+                {
+                    _artificialUtcTimestampTicks = _previousUtcTimestampTicks = logEventUtcTimeStamp.Ticks;
+                }
+            }
+
             //Construct the instance of GelfMessage
             jsonWriter.WriteStartObject();
 
@@ -50,11 +67,11 @@ namespace NLog.Layouts.GelfLayout
                 {
                     facility = "GELF";   //Spec says: facility must be set by the client to "GELF" if empty
                 }
-                WriteGelfVersionLegacy(jsonWriter, logEventInfo, logEventMessage, shortMessage, facility);
+                WriteGelfVersionLegacy(jsonWriter, logEventInfo, logEventUtcTimeStamp, logEventMessage, shortMessage, facility);
             }
             else
             {
-                WriteGelfVersion11(jsonWriter, logEventInfo, logEventMessage, shortMessage);
+                WriteGelfVersion11(jsonWriter, logEventInfo, logEventUtcTimeStamp, logEventMessage, shortMessage);
             }
 
             //We will persist them "Additional Fields" according to Gelf spec
@@ -115,7 +132,7 @@ namespace NLog.Layouts.GelfLayout
         /// <summary>
         /// See http://docs.graylog.org/en/2.0/pages/gelf.html#gelf-payload-specification "Specification (version 1.0)"
         /// </summary>
-        private void WriteGelfVersionLegacy(JsonWriter jsonWriter, LogEventInfo logEventInfo, string logEventMessage, string shortMessage, string facility)
+        private void WriteGelfVersionLegacy(JsonWriter jsonWriter, LogEventInfo logEventInfo, DateTime logEventTimeStamp, string logEventMessage, string shortMessage, string facility)
         {
             jsonWriter.WritePropertyName("facility");
             jsonWriter.WriteValue((string.IsNullOrEmpty(facility) ? "GELF" : facility));
@@ -135,7 +152,7 @@ namespace NLog.Layouts.GelfLayout
             jsonWriter.WritePropertyName("short_message");
             jsonWriter.WriteValue(shortMessage);
             jsonWriter.WritePropertyName("timestamp");
-            jsonWriter.WriteValue(ToUnixTimeStamp(logEventInfo.TimeStamp));
+            jsonWriter.WriteValue(ToUnixTimeStamp(logEventTimeStamp));
             jsonWriter.WritePropertyName("version");
             jsonWriter.WriteValue(GelfVersion11);
         }
@@ -151,7 +168,7 @@ namespace NLog.Layouts.GelfLayout
         ///     file - optional, deprecated. Send as additional field instead.
         ///     line - optional, deprecated. Send as additional field instead.
         /// </remarks>
-        private void WriteGelfVersion11(JsonWriter jsonWriter, LogEventInfo logEventInfo, string logEventMessage, string shortMessage)
+        private void WriteGelfVersion11(JsonWriter jsonWriter, LogEventInfo logEventInfo, DateTime logEventTimeStamp, string logEventMessage, string shortMessage)
         {
             jsonWriter.WritePropertyName("version");
             jsonWriter.WriteValue(GelfVersion11);
@@ -162,7 +179,7 @@ namespace NLog.Layouts.GelfLayout
             jsonWriter.WritePropertyName("full_message");
             jsonWriter.WriteValue(logEventMessage);
             jsonWriter.WritePropertyName("timestamp");
-            jsonWriter.WriteValue(ToUnixTimeStamp(logEventInfo.TimeStamp));
+            jsonWriter.WriteValue(ToUnixTimeStamp(logEventTimeStamp));
             jsonWriter.WritePropertyName("level");
             jsonWriter.WriteValue(logEventInfo.Level.GetOrdinal());
         }
@@ -225,6 +242,29 @@ namespace NLog.Layouts.GelfLayout
                             throw;
                     }
                 }
+            }
+        }
+
+        private DateTime MakeUniqueUnixTimeStamp(DateTime logEventUtcTimeStamp, long artificialUtcTimestampTicks)
+        {
+            do
+            {
+                if (System.Threading.Interlocked.CompareExchange(ref _artificialUtcTimestampTicks, artificialUtcTimestampTicks + TimeSpan.TicksPerMillisecond / 10, artificialUtcTimestampTicks) == artificialUtcTimestampTicks)
+                {
+                    artificialUtcTimestampTicks += TimeSpan.TicksPerMillisecond / 10;
+                    break;
+                }
+                artificialUtcTimestampTicks = System.Threading.Interlocked.Read(ref _artificialUtcTimestampTicks);
+            }
+            while (System.Threading.Interlocked.Read(ref _previousUtcTimestampTicks) == logEventUtcTimeStamp.Ticks);
+
+            if (artificialUtcTimestampTicks > logEventUtcTimeStamp.Ticks && (logEventUtcTimeStamp.Ticks + TimeSpan.TicksPerMillisecond) > artificialUtcTimestampTicks)
+            {
+                return new DateTime(artificialUtcTimestampTicks, DateTimeKind.Utc);
+            }
+            else
+            {
+                return new DateTime(logEventUtcTimeStamp.Ticks + TimeSpan.TicksPerMillisecond - TimeSpan.TicksPerMillisecond / 10);
             }
         }
 

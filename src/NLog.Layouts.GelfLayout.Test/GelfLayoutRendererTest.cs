@@ -57,6 +57,15 @@ namespace NLog.Layouts.GelfLayout.Test
                 loggerName);
 
             Assert.AreEqual(expectedGelf, renderedGelf);
+            Assert.AreEqual(expectedGelf, gelfRenderer.Render(logEvent));
+
+            gelfRenderer.FixDuplicateTimestamp = true;
+            renderedGelf = gelfRenderer.Render(logEvent);
+            var renderedGelfWithUniqueTime1 = gelfRenderer.Render(logEvent);
+            var renderedGelfWithUniqueTime2 = gelfRenderer.Render(logEvent);
+            Assert.AreNotEqual(renderedGelf, renderedGelfWithUniqueTime1);
+            Assert.AreNotEqual(renderedGelf, renderedGelfWithUniqueTime2);
+            Assert.AreNotEqual(renderedGelfWithUniqueTime1, renderedGelfWithUniqueTime2);
         }
 
         [TestMethod]

@@ -36,6 +36,9 @@ namespace NLog.Layouts.GelfLayout
         public bool IncludeLegacyFields { get => _renderer.IncludeLegacyFields; set => _renderer.IncludeLegacyFields = value; }
 
         /// <inheritdoc/>
+        public bool FixDuplicateTimestamp { get; set; }
+
+        /// <inheritdoc/>
         public Layout Facility { get => _renderer.Facility; set => _renderer.Facility = value; }
 
         /// <inheritdoc/>

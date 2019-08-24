@@ -25,6 +25,11 @@ namespace NLog.Layouts.GelfLayout
         bool IncludeLegacyFields { get; }
 
         /// <summary>
+        /// Allow adjustment of GELF-timestamp with 1/10th millisecond, when low timeprecision produces identical timestamps
+        /// </summary>
+        bool FixDuplicateTimestamp { get; }
+
+        /// <summary>
         /// Graylog Facility
         /// </summary>
         /// <remarks>
