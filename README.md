@@ -40,7 +40,7 @@ For instance the following configuration writes log messages to a [RabbitMQ-adol
 
 In this example there would be a [Graylog2] server that consumes the queued [GELF] messages. 
 
-### Sample Usage with NLog Network Target
+### Sample Usage with NLog Network Target and HTTP
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
 <nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
@@ -54,6 +54,24 @@ In this example there would be a [Graylog2] server that consumes the queued [GEL
 
   <rules>
     <logger name="*" minlevel="Debug" writeTo="GelfHttp" />
+  </rules>
+</nlog>
+```
+
+### Sample Usage with NLog Network Target and TCP
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+  <extensions>
+    <add assembly="NLog.Layouts.GelfLayout" />
+  </extensions>
+  
+  <targets async="true">
+	<target xsi:type="Network" name="GelfTcp" address="tcp://graylog:12200" layout="${gelf:facility=MyFacility}" newLine="true" lineEnding="Null" />
+  </targets>
+
+  <rules>
+    <logger name="*" minlevel="Debug" writeTo="GelfTcp" />
   </rules>
 </nlog>
 ```
