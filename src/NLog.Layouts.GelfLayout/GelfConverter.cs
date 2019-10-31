@@ -15,9 +15,9 @@ namespace NLog.Layouts.GelfLayout
         private const int FullMessageMaxLength = 16383; // Truncate due to: https://github.com/Graylog2/graylog2-server/issues/873
         private const string GelfVersion11 = "1.1";
         private static DateTime UnixDateStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
+        private static readonly JsonSerializerSettings _jsonSerializerSettings = CreateJsonSerializerSettings();
         private static readonly JsonConverter[] _emptyJsonConverters = new JsonConverter[0];
-        private JsonSerializer JsonSerializer => _jsonSerializer ?? (_jsonSerializer = JsonSerializer.CreateDefault());
+        private JsonSerializer JsonSerializer => _jsonSerializer ?? (_jsonSerializer = JsonSerializer.CreateDefault(_jsonSerializerSettings));
         private JsonSerializer _jsonSerializer;
 
         private static readonly HashSet<string> ExcludePropertyKeys = new HashSet<string>(new string[] { "LoggerName", "_LoggerName", "ExceptionSource", "_ExceptionSource", "ExceptionMessage", "_ExceptionMessage", "ExceptionType", "_ExceptionType", "StackTrace", "_StackTrace" }, StringComparer.OrdinalIgnoreCase);
@@ -241,7 +241,7 @@ namespace NLog.Layouts.GelfLayout
             }
             catch (Exception ex)
             {
-                InternalLogger.Error($"GELF HostName Lookup Failed: {ex}");
+                InternalLogger.Error(ex, "GELF HostName Lookup Failed {0}", ex.Message);
                 if (LogManager.ThrowExceptions)
                     throw;
 
@@ -249,7 +249,7 @@ namespace NLog.Layouts.GelfLayout
             }
         }
 
-        private static void AddAdditionalField(JsonWriter jsonWriter, string key, object propertyValue)
+        private void AddAdditionalField(JsonWriter jsonWriter, string key, object propertyValue)
         {
             if (key.IndexOf("-", StringComparison.OrdinalIgnoreCase) >= 0)
                 key = key.Replace('-', '_');
@@ -341,15 +341,33 @@ namespace NLog.Layouts.GelfLayout
 
             try
             {
-                var jtoken = JToken.FromObject(propertyValue);
-                jtoken.WriteTo(jsonWriter, _emptyJsonConverters);
+                var jsonSerializer = JsonSerializer;
+                lock (jsonSerializer)
+                {
+                    var jtoken = JToken.FromObject(propertyValue, jsonSerializer);
+                    jtoken.WriteTo(jsonWriter, _emptyJsonConverters);
+                }
             }
             catch (Exception ex)
             {
-                InternalLogger.Error(ex, "GelfConverter: Error while adding field: {0} (Type={1})", key, propertyValue.GetType().FullName);
+                _jsonSerializer = null; // Maybe become broken
+                InternalLogger.Warn(ex, "GelfConverter: Error while adding field: {0} (Type={1})", key, propertyValue.GetType().FullName);
                 if (LogManager.ThrowExceptions)
                     throw;
             }
+        }
+
+        private static JsonSerializerSettings CreateJsonSerializerSettings()
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+            jsonSerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+            jsonSerializerSettings.Error = (sender, args) =>
+            {
+                InternalLogger.Warn(args.ErrorContext.Error, "GelfConverter: Error serializing property '{0}', property ignored", args.ErrorContext.Member);
+                if (!LogManager.ThrowExceptions)
+                    args.ErrorContext.Handled = true;
+            };
+            return jsonSerializerSettings;
         }
     }
 }
