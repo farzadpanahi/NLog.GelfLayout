@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard2.0;netstandard1.3</TargetFrameworks>
 
-    <Version>0.4.0</Version>
+    <Version>1.0</Version>
     <Title>NLog.GelfLayout</Title>
     <PackageId>NLog.GelfLayout</PackageId>
     <Company>Farzad Panahi</Company>
@@ -12,7 +12,7 @@
     <Copyright>Copyright 2018</Copyright>
 
     <PackageReleaseNotes>
-      Introduce Layout GelfLayout with support for ExtraFields and IncludeMldc
+      Updated JSON-Serializer settings to better handle rogue objects with cyclic object references
     </PackageReleaseNotes>
     <PackageTags>NLog;Gelf;graylog2;Log;Logging</PackageTags>
     <PackageProjectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</PackageProjectUrl>
