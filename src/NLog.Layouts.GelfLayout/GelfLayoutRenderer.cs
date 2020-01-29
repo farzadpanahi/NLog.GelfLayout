@@ -15,7 +15,7 @@ namespace NLog.Layouts.GelfLayout
     {
         private readonly GelfConverter _converter = new GelfConverter();
 
-        internal static readonly Layout _disableThreadAgnostic = "${threadid}";
+        internal static readonly Layout _disableThreadAgnostic = "${threadid:cached=true}";
 
         public GelfLayoutRenderer()
         {
