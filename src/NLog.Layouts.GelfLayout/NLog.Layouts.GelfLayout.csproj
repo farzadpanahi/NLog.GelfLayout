@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard2.0;netstandard1.3</TargetFrameworks>
 
-    <Version>1.0</Version>
+    <Version>1.1</Version>
     <Title>NLog.GelfLayout</Title>
     <PackageId>NLog.GelfLayout</PackageId>
     <Company>Farzad Panahi</Company>
@@ -12,7 +12,7 @@
     <Copyright>Copyright 2018</Copyright>
 
     <PackageReleaseNotes>
-      Updated JSON-Serializer settings to better handle rogue objects with cyclic object references
+      Updated to NLog 4.5.11 and Newtonsoft.Json 11.0.2 to reduce dependencies for NetStandard2.0
     </PackageReleaseNotes>
     <PackageTags>NLog;Gelf;graylog2;Log;Logging</PackageTags>
     <PackageProjectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</PackageProjectUrl>
@@ -25,7 +25,7 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.5.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="NLog" Version="4.5.11" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 </Project>
