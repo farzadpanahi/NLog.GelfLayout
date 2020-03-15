@@ -18,5 +18,4 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Build project and package it
-      run: make_nuget.bat
-      working-directory: nuget
+      run: dotnet pack src\NLog.Layouts.GelfLayout\NLog.Layouts.GelfLayout.csproj --configuration Release --include-symbols --output nuget
