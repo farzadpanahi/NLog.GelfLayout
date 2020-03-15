@@ -19,3 +19,7 @@ jobs:
         dotnet-version: 3.1.101
     - name: Build project and package it
       run: dotnet pack src\NLog.Layouts.GelfLayout\NLog.Layouts.GelfLayout.csproj --configuration Release --include-symbols --output nuget
+    - name: Build test project
+      run: dotnet build src\NLog.Layouts.GelfLayout.Test\NLog.Layouts.GelfLayout.Test.csproj
+    - name: Run tests
+      run: dotnet test src\NLog.Layouts.GelfLayout.Test\NLog.Layouts.GelfLayout.Test.csproj

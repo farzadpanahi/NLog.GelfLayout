@@ -203,7 +203,7 @@ namespace NLog.Layouts.GelfLayout.Test
                 "\"_ExceptionSource\":\"NLog.Layouts.GelfLayout.Test\","
                     + "\"_ExceptionMessage\":\"funny exception :D\","
                     + "\"_ExceptionType\":\"System.ArgumentException\","
-                    + "\"_StackTrace\":\"System.ArgumentException: funny exception :D ---> System.Exception: very funny "
+                    + "\"_StackTrace\":\"System.ArgumentException: funny exception :D\\r\\n ---> System.Exception: very funny "
                     + "exception ::D\\r\\n   --- End of inner exception stack trace ---\\r\\n   "
                     + "at NLog.Layouts.GelfLayout.Test.FakeException.Throw() in "
                     + exceptionPath

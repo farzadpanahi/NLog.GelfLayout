@@ -9,23 +9,26 @@
     <Company>Farzad Panahi</Company>
     <Authors>Farzad Panahi, Tamas Kiss</Authors>
     <Description>Gelf layout renderer for NLog</Description>
-    <Copyright>Copyright 2018</Copyright>
+    <Copyright>Copyright 2020</Copyright>
 
     <PackageReleaseNotes>
       Updated to NLog 4.5.11 and Newtonsoft.Json 11.0.2 to reduce dependencies for NetStandard2.0
     </PackageReleaseNotes>
     <PackageTags>NLog;Gelf;graylog2;Log;Logging</PackageTags>
     <PackageProjectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.github.com/farzadpanahi/NLog.GelfLayout/master/LICENSE</PackageLicenseUrl>
+    <PackageLicense>https://raw.github.com/farzadpanahi/NLog.GelfLayout/master/LICENSE</PackageLicense>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>git://github.com/farzadpanahi/NLog.GelfLayout</RepositoryUrl>
 
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>NLog.Layouts.GelfLayout.snk</AssemblyOriginatorKeyFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+	<IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.5.11" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
   </ItemGroup>
 </Project>
