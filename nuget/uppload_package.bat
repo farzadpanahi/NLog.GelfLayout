@@ -1,1 +1,1 @@
-dotnet push NLog.Layouts.GelfLayout.*.nupkg
+dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json
