@@ -64,7 +64,7 @@ namespace NLog.Layouts.GelfLayout
                 foreach (var property in logEventInfo.Properties)
                 {
                     string key = property.Key as string;
-                    if (key == null || ExcludePropertyKeys.Contains(key))
+                    if (key == null || IsExcludedProperty(key, converterOptions))
                         continue;
 
                     AddAdditionalField(jsonWriter, key, property.Value);
@@ -90,7 +90,7 @@ namespace NLog.Layouts.GelfLayout
                 bool foundMdlcItem = false;
                 foreach (string key in mdlcKeys)
                 {
-                    if (string.IsNullOrEmpty(key) || ExcludePropertyKeys.Contains(key))
+                    if (string.IsNullOrEmpty(key) || IsExcludedProperty(key, converterOptions))
                         continue;
 
                     if (hasProperties && logEventInfo.Properties.ContainsKey(key))
@@ -368,6 +368,10 @@ namespace NLog.Layouts.GelfLayout
                     args.ErrorContext.Handled = true;
             };
             return jsonSerializerSettings;
+        }
+
+        private bool IsExcludedProperty(string key, IGelfConverterOptions converterOptions) {
+            return ExcludePropertyKeys.Contains(key) || converterOptions.ExcludePropertyKeys.Contains(key);
         }
     }
 }

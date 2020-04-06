@@ -40,9 +40,13 @@ namespace NLog.Layouts.GelfLayout
         /// <inheritdoc/>
         public Layout Facility { get; set; }
 
+        /// <inheritdoc/>
+        public HashSet<string> ExcludePropertyKeys { get; set; } = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+
         IList<GelfField> IGelfConverterOptions.ExtraFields { get => ExtraFields; }
 
         internal IList<GelfField> ExtraFields { get; set; }
+        
 
         internal void RenderAppend(LogEventInfo logEvent, StringBuilder builder)
         {

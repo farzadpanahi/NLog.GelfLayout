@@ -39,6 +39,9 @@ namespace NLog.Layouts.GelfLayout
         public Layout Facility { get => _renderer.Facility; set => _renderer.Facility = value; }
 
         /// <inheritdoc/>
+        public HashSet<string> ExcludePropertyKeys { get => _renderer.ExcludePropertyKeys; set => _renderer.ExcludePropertyKeys = value; }
+
+        /// <inheritdoc/>
         protected override void RenderFormattedMessage(LogEventInfo logEvent, StringBuilder target)
         {
             _renderer.RenderAppend(logEvent, target);

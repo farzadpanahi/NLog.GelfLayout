@@ -31,5 +31,11 @@ namespace NLog.Layouts.GelfLayout
         /// Ignored when <see cref="IncludeLegacyFields"/> = false
         /// </remarks>
         Layout Facility { get; }
+
+        /// <summary>
+        /// Exclude properties that should not be logged when IncludeAllProperties is true
+        /// </summary>
+        /// <value></value>
+        HashSet<string> ExcludePropertyKeys { get; set; }
     }
 }

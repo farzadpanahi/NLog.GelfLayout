@@ -330,5 +330,56 @@ namespace NLog.Layouts.GelfLayout.Test
                 threadId);
             Assert.AreEqual(expectedGelf, renderedGelf);
         }
+
+        [TestMethod]
+        public void CanExcludeProperties()
+        {
+            var loggerName = "TestLogger";
+            var facility = "TestFacility";
+            var dateTime = DateTime.Now;
+            var message = "hello, gelf :)";
+            var logLevel = LogLevel.Info;
+            var hostname = Dns.GetHostName();
+            var gelfLayout= new GelfLayout();
+
+            gelfLayout.ExcludePropertyKeys.Add("ExcludedProperty");
+
+            gelfLayout.Facility = facility;
+            gelfLayout.ExtraFields.Add(new GelfField("ThreadId", "${threadid}") { PropertyType = typeof(int) });
+
+            var logEvent = new LogEventInfo
+            {
+                LoggerName = loggerName,
+                Level = logLevel,
+                Message = message,
+                TimeStamp = dateTime,
+            };
+            logEvent.Properties.Add("ExcludedProperty", "This shall be excluded");
+
+            int threadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+            var renderedGelf = gelfLayout.Render(logEvent);
+            var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
+            var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                "{{\"facility\":\"{0}\","
+                    + "\"file\":\"TestLogger\","
+                    + "\"full_message\":\"{1}\","
+                    + "\"host\":\"{2}\","
+                    + "\"level\":{3},"
+                    + "\"line\":0,"
+                    + "\"short_message\":\"{4}\","
+                    + "\"timestamp\":{5},"
+                    + "\"version\":\"1.1\","
+                    + "\"_LoggerName\":\"{6}\","
+                    + "\"_ThreadId\":{7}}}",
+                facility,
+                message,
+                hostname,
+                logLevel.GetOrdinal(),
+                message,
+                expectedDateTime,
+                loggerName,
+                threadId);
+            Assert.AreEqual(expectedGelf, renderedGelf);
+        }
     }
 }
