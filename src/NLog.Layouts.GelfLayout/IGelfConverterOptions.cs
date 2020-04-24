@@ -20,6 +20,11 @@ namespace NLog.Layouts.GelfLayout
         IList<GelfField> ExtraFields { get; }
 
         /// <summary>
+        /// Gets the collection of property names to exclude from the LogEvent
+        /// </summary>
+        ISet<string> ExcludeProperties { get; }
+
+        /// <summary>
         /// Include deprecated fields no longer part of official GelfVersion 1.1 specification
         /// </summary>
         bool IncludeLegacyFields { get; }

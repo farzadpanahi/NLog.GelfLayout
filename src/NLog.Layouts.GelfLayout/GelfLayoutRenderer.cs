@@ -44,6 +44,8 @@ namespace NLog.Layouts.GelfLayout
 
         internal IList<GelfField> ExtraFields { get; set; }
 
+        public ISet<string> ExcludeProperties { get; set; } = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+
         internal void RenderAppend(LogEventInfo logEvent, StringBuilder builder)
         {
             Append(builder, logEvent);

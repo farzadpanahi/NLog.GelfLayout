@@ -61,10 +61,14 @@ namespace NLog.Layouts.GelfLayout
             bool hasProperties = converterOptions.IncludeAllProperties && logEventInfo.HasProperties;
             if (hasProperties)
             {
+                bool hasExcludeProperties = converterOptions.ExcludeProperties?.Count > 0;
                 foreach (var property in logEventInfo.Properties)
                 {
                     string key = property.Key as string;
                     if (key == null || ExcludePropertyKeys.Contains(key))
+                        continue;
+
+                    if (hasExcludeProperties && converterOptions.ExcludeProperties.Contains(key))
                         continue;
 
                     AddAdditionalField(jsonWriter, key, property.Value);
@@ -88,12 +92,16 @@ namespace NLog.Layouts.GelfLayout
             {
                 mdlcKeys = MappedDiagnosticsLogicalContext.GetNames();
                 bool foundMdlcItem = false;
+                bool hasExcludeProperties = converterOptions.ExcludeProperties?.Count > 0;
                 foreach (string key in mdlcKeys)
                 {
                     if (string.IsNullOrEmpty(key) || ExcludePropertyKeys.Contains(key))
                         continue;
 
                     if (hasProperties && logEventInfo.Properties.ContainsKey(key))
+                        continue;
+
+                    if (hasExcludeProperties && converterOptions.ExcludeProperties.Contains(key))
                         continue;
 
                     foundMdlcItem = true;
@@ -361,6 +369,9 @@ namespace NLog.Layouts.GelfLayout
         {
             var jsonSerializerSettings = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
             jsonSerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+            jsonSerializerSettings.Converters.Add(new JsonToStringConverter(typeof(System.Reflection.MemberInfo)));
+            jsonSerializerSettings.Converters.Add(new JsonToStringConverter(typeof(System.Reflection.Assembly)));
+            jsonSerializerSettings.Converters.Add(new JsonToStringConverter(typeof(System.Reflection.Module)));
             jsonSerializerSettings.Error = (sender, args) =>
             {
                 InternalLogger.Warn(args.ErrorContext.Error, "GelfConverter: Error serializing property '{0}', property ignored", args.ErrorContext.Member);

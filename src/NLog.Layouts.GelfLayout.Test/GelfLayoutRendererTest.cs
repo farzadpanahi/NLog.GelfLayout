@@ -330,5 +330,111 @@ namespace NLog.Layouts.GelfLayout.Test
                 threadId);
             Assert.AreEqual(expectedGelf, renderedGelf);
         }
+
+        [TestMethod]
+        public void CanRenderGelfWithBadObject()
+        {
+            var loggerName = "TestLogger";
+            var facility = "TestFacility";
+            var dateTime = DateTime.Now;
+            var message = "hello, gelf :)";
+            var logLevel = LogLevel.Info;
+            var hostname = Dns.GetHostName();
+            var gelfLayout = new GelfLayout();
+            gelfLayout.Facility = facility;
+            gelfLayout.IncludeAllProperties = true;
+
+            var logEvent = new LogEventInfo
+            {
+                LoggerName = loggerName,
+                Level = logLevel,
+                Message = message,
+                TimeStamp = dateTime,
+            };
+            logEvent.Properties["BadBoy"] = new BadLogObject();
+
+            var renderedGelf = gelfLayout.Render(logEvent);
+            var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
+            var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                "{{\"facility\":\"{0}\","
+                    + "\"file\":\"TestLogger\","
+                    + "\"full_message\":\"{1}\","
+                    + "\"host\":\"{2}\","
+                    + "\"level\":{3},"
+                    + "\"line\":0,"
+                    + "\"short_message\":\"{4}\","
+                    + "\"timestamp\":{5},"
+                    + "\"version\":\"1.1\","
+                    + "\"_BadBoy\":{{\"BadArray\":[],\"BadProperty\":\"{6}\"}},"
+                    + "\"_LoggerName\":\"{7}\"}}",
+                facility,
+                message,
+                hostname,
+                logLevel.GetOrdinal(),
+                message,
+                expectedDateTime,
+                typeof(BadLogObject).Assembly.ToString(),
+                loggerName);
+            Assert.AreEqual(expectedGelf, renderedGelf);
+        }
+
+        [TestMethod]
+        public void CanRenderGelfWithBadObjectExcluded()
+        {
+            var loggerName = "TestLogger";
+            var facility = "TestFacility";
+            var dateTime = DateTime.Now;
+            var message = "hello, gelf :)";
+            var logLevel = LogLevel.Info;
+            var hostname = Dns.GetHostName();
+            var gelfLayout = new GelfLayout();
+            gelfLayout.Facility = facility;
+            gelfLayout.IncludeAllProperties = true;
+            gelfLayout.ExcludeProperties.Add("BadBoy");
+
+            var logEvent = new LogEventInfo
+            {
+                LoggerName = loggerName,
+                Level = logLevel,
+                Message = message,
+                TimeStamp = dateTime,
+            };
+            logEvent.Properties["BadBoy"] = new BadLogObject();
+
+            var renderedGelf = gelfLayout.Render(logEvent);
+            var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
+            var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                "{{\"facility\":\"{0}\","
+                    + "\"file\":\"TestLogger\","
+                    + "\"full_message\":\"{1}\","
+                    + "\"host\":\"{2}\","
+                    + "\"level\":{3},"
+                    + "\"line\":0,"
+                    + "\"short_message\":\"{4}\","
+                    + "\"timestamp\":{5},"
+                    + "\"version\":\"1.1\","
+                    + "\"_LoggerName\":\"{6}\"}}",
+                facility,
+                message,
+                hostname,
+                logLevel.GetOrdinal(),
+                message,
+                expectedDateTime,
+                loggerName);
+            Assert.AreEqual(expectedGelf, renderedGelf);
+        }
+
+        public class BadLogObject
+        {
+            public object[] BadArray { get; }
+            public System.Reflection.Assembly BadProperty => typeof(BadLogObject).Assembly;
+
+            public object ExceptionalBadProperty => throw new System.NotSupportedException();
+
+            public BadLogObject()
+            {
+                BadArray = new object[] { this };
+            }
+        }
     }
 }
