@@ -27,6 +27,9 @@ namespace NLog.Layouts.GelfLayout
         public IList<GelfField> ExtraFields { get => _renderer.ExtraFields; set => _renderer.ExtraFields = value; }
 
         /// <inheritdoc/>
+        public ISet<string> ExcludeProperties { get => _renderer.ExcludeProperties; set => _renderer.ExcludeProperties = value; }
+
+        /// <inheritdoc/>
         public bool IncludeAllProperties { get => _renderer.IncludeAllProperties; set => _renderer.IncludeAllProperties = value; }
 
         /// <inheritdoc/>
