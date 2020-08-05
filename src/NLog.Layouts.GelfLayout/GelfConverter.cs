@@ -372,9 +372,10 @@ namespace NLog.Layouts.GelfLayout
             jsonSerializerSettings.Converters.Add(new JsonToStringConverter(typeof(System.Reflection.MemberInfo)));
             jsonSerializerSettings.Converters.Add(new JsonToStringConverter(typeof(System.Reflection.Assembly)));
             jsonSerializerSettings.Converters.Add(new JsonToStringConverter(typeof(System.Reflection.Module)));
+            jsonSerializerSettings.Converters.Add(new JsonToStringConverter(typeof(System.IO.Stream))); // Several Stream-properties throws exceptions
             jsonSerializerSettings.Error = (sender, args) =>
             {
-                InternalLogger.Warn(args.ErrorContext.Error, "GelfConverter: Error serializing property '{0}', property ignored", args.ErrorContext.Member);
+                InternalLogger.Debug(args.ErrorContext.Error, "GelfConverter: Error serializing property '{0}', property ignored", args.ErrorContext.Member);
                 if (!LogManager.ThrowExceptions)
                     args.ErrorContext.Handled = true;
             };
