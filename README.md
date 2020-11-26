@@ -12,7 +12,7 @@ PM> Install-Package NLog.GelfLayout
 
 ### Parameters
 - _IncludeAllProperties_ - Include all properties from the LogEvent. Boolean. Default = true
-- _IncludeMldc_ - Include all properties from NLog MDLC / MEL BeginScope. Boolean. Default = false
+- _IncludeMdlc_ - Include all properties from NLog MDLC / MEL BeginScope. Boolean. Default = false
 - _ExcludeProperties_ - Comma separated string with LogEvent property names to exclude. 
 - _IncludeLegacyFields_ - Include deprecated fields no longer part of official GelfVersion 1.1 specification. Boolean. Default = true
 - _Facility_ - Graylog Facility. Ignored when IncludeLegacyFields=False
