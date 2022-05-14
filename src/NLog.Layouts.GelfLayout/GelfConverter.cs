@@ -58,7 +58,7 @@ namespace NLog.Layouts.GelfLayout
             }
 
             //We will persist them "Additional Fields" according to Gelf spec
-            bool hasProperties = converterOptions.IncludeAllProperties && logEventInfo.HasProperties;
+            bool hasProperties = converterOptions.IncludeEventProperties && logEventInfo.HasProperties;
             if (hasProperties)
             {
                 bool hasExcludeProperties = converterOptions.ExcludeProperties?.Count > 0;
@@ -88,7 +88,7 @@ namespace NLog.Layouts.GelfLayout
             AddAdditionalField(jsonWriter, "_LoggerName", logEventInfo.LoggerName);
 
             ICollection<string> mdlcKeys = null;
-            if (converterOptions.IncludeMdlc)
+            if (converterOptions.IncludeScopeProperties)
             {
                 mdlcKeys = MappedDiagnosticsLogicalContext.GetNames();
                 bool foundMdlcItem = false;

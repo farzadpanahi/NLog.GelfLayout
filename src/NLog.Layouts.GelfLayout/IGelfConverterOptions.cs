@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NLog.Layouts.GelfLayout
 {
@@ -7,12 +8,24 @@ namespace NLog.Layouts.GelfLayout
         /// <summary>
         /// Gets or sets a value indicating whether to include contents of the <see cref="MappedDiagnosticsLogicalContext"/> dictionary.
         /// </summary>
+        [Obsolete("Replaced by IncludeScopeProperties")]
         bool IncludeMdlc { get; }
 
         /// <summary>
         /// Gets or sets the option to include all properties from the log events
         /// </summary>
+        [Obsolete("Replaced by IncludeEventProperties")]
         bool IncludeAllProperties { get; }
+
+        /// <summary>
+        /// Gets or sets the option to include event properties from the log events
+        /// </summary>
+        bool IncludeEventProperties { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to include properties from the NLog ScopeContext-dictionary
+        /// </summary>
+        bool IncludeScopeProperties { get; }
 
         /// <summary>
         /// Gets the array of additional custom fields to include in the Gelf message

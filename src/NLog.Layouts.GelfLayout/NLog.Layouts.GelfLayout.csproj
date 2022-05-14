@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard2.0;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>net471;netstandard2.0;netstandard1.3</TargetFrameworks>
 
-    <Version>1.2</Version>
+    <Version>1.3</Version>
     <Title>NLog.GelfLayout</Title>
     <PackageId>NLog.GelfLayout</PackageId>
     <Company>Farzad Panahi</Company>
@@ -12,7 +12,9 @@
     <Copyright>Copyright 2020</Copyright>
 
     <PackageReleaseNotes>
-Added support for ExcludeProperties and improve handling of reflection types
+IncludeLegacyFields is now false by default, unless having specified legacy Facility-field 
+Updated to .NET Framework 4.7.1
+Introduced IncludeEventProperties + IncludeScopeProperties to match NLog 5.0
     </PackageReleaseNotes>
     <PackageTags>NLog;Gelf;graylog2;Log;Logging</PackageTags>
     <PackageProjectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</PackageProjectUrl>

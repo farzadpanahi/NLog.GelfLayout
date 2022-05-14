@@ -27,13 +27,21 @@ namespace NLog.Layouts.GelfLayout
         public IList<GelfField> ExtraFields { get => _renderer.ExtraFields; set => _renderer.ExtraFields = value; }
 
         /// <inheritdoc/>
+        public bool IncludeEventProperties { get => _renderer.IncludeEventProperties; set => _renderer.IncludeEventProperties = value; }
+
+        /// <inheritdoc/>
+        public bool IncludeScopeProperties { get => _renderer.IncludeScopeProperties; set => _renderer.IncludeScopeProperties = value; }
+
+        /// <inheritdoc/>
         public ISet<string> ExcludeProperties { get => _renderer.ExcludeProperties; set => _renderer.ExcludeProperties = value; }
 
         /// <inheritdoc/>
-        public bool IncludeAllProperties { get => _renderer.IncludeAllProperties; set => _renderer.IncludeAllProperties = value; }
+        [Obsolete("Replaced by IncludeEventProperties")]
+        public bool IncludeAllProperties { get => IncludeEventProperties; set => IncludeEventProperties = value; }
 
         /// <inheritdoc/>
-        public bool IncludeMdlc { get => _renderer.IncludeMdlc; set => _renderer.IncludeMdlc = value; }
+        [Obsolete("Replaced by IncludeScopeProperties")]
+        public bool IncludeMdlc { get => IncludeScopeProperties; set => IncludeScopeProperties = value; }
 
         /// <inheritdoc/>
         public bool IncludeLegacyFields { get => _renderer.IncludeLegacyFields; set => _renderer.IncludeLegacyFields = value; }

@@ -5,6 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using NLog.LayoutRenderers;
 using NLog.Config;
+using System;
 
 namespace NLog.Layouts.GelfLayout
 {
@@ -19,26 +20,44 @@ namespace NLog.Layouts.GelfLayout
 
         public GelfLayoutRenderer()
         {
-            IncludeAllProperties = true;
-            IncludeLegacyFields = true;
+            IncludeEventProperties = true;
         }
 
         /// <summary>
         /// Performance hack for NLog, that allows the Layout to dynamically disable <see cref="ThreadAgnosticAttribute"/> to ensure correct async context capture
         /// </summary>
-        public Layout DisableThreadAgnostic => IncludeMdlc ? _disableThreadAgnostic : null;
+        public Layout DisableThreadAgnostic => IncludeScopeProperties ? _disableThreadAgnostic : null;
 
         /// <inheritdoc/>
-        public bool IncludeAllProperties { get; set; }
+        public bool IncludeEventProperties { get; set; }
 
         /// <inheritdoc/>
-        public bool IncludeMdlc { get; set; }
+        public bool IncludeScopeProperties { get; set; }
 
         /// <inheritdoc/>
-        public bool IncludeLegacyFields { get; set; }
+        [Obsolete("Replaced by IncludeEventProperties")]
+        public bool IncludeAllProperties { get => IncludeEventProperties; set => IncludeEventProperties = value; }
 
         /// <inheritdoc/>
-        public Layout Facility { get; set; }
+        [Obsolete("Replaced by IncludeScopeProperties")]
+        public bool IncludeMdlc { get => IncludeScopeProperties; set => IncludeScopeProperties = value; }
+
+        /// <inheritdoc/>
+        public bool IncludeLegacyFields { get => _includeLegacyFields ?? false; set => _includeLegacyFields = value; }
+        private bool? _includeLegacyFields;
+
+        /// <inheritdoc/>
+        public Layout Facility
+        {
+            get => _facility;
+            set
+            {
+                _facility = value;
+                if (!_includeLegacyFields.HasValue)
+                    IncludeLegacyFields = true;
+            }
+        }
+        private Layout _facility;
 
         IList<GelfField> IGelfConverterOptions.ExtraFields { get => ExtraFields; }
 
