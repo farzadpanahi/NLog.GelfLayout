@@ -11,11 +11,11 @@ PM> Install-Package NLog.GelfLayout
 ```
 
 ### Parameters
-- _IncludeAllProperties_ - Include all properties from the LogEvent. Boolean. Default = true
-- _IncludeMdlc_ - Include all properties from NLog MDLC / MEL BeginScope. Boolean. Default = false
+- _IncludeEventProperties_ - Include all properties from the LogEvent. Boolean. Default = true
+- _IncludeScopeProperties_ - Include all properties from NLog MDLC / MEL BeginScope. Boolean. Default = false
 - _ExcludeProperties_ - Comma separated string with LogEvent property names to exclude. 
-- _IncludeLegacyFields_ - Include deprecated fields no longer part of official GelfVersion 1.1 specification. Boolean. Default = true
-- _Facility_ - Graylog Facility. Ignored when IncludeLegacyFields=False
+- _IncludeLegacyFields_ - Include deprecated fields no longer part of official GelfVersion 1.1 specification. Boolean. Default = false
+- _Facility_ - Legacy Graylog Facility, when specifed it will fallback to legacy GelfVersion 1.0. Ignored when IncludeLegacyFields=False
 
 ### Sample Usage with RabbitMQ Target
 You can configure this layout for [NLog] Targets that respect Layout attribute. 
@@ -36,7 +36,7 @@ For instance the following configuration writes log messages to a [RabbitMQ-adol
             exchange="logmessages-gelf"
             durable="true"
             useJSON="false"
-            layout="${gelf:facility=MyFacility}"
+            layout="${gelf}"
     />
   </targets>
 
@@ -57,7 +57,7 @@ In this example there would be a [Graylog2] server that consumes the queued [GEL
   </extensions>
   
   <targets async="true">
-	<target xsi:type="Network" name="GelfHttp" address="http://localhost:12201/gelf" layout="${gelf:facility=MyFacility}" />
+	<target xsi:type="Network" name="GelfHttp" address="http://localhost:12201/gelf" layout="${gelf}" />
   </targets>
 
   <rules>
@@ -75,7 +75,7 @@ In this example there would be a [Graylog2] server that consumes the queued [GEL
   </extensions>
   
   <targets async="true">
-	<target xsi:type="Network" name="GelfTcp" address="tcp://graylog:12200" layout="${gelf:facility=MyFacility}" newLine="true" lineEnding="Null" />
+	<target xsi:type="Network" name="GelfTcp" address="tcp://graylog:12200" layout="${gelf}" newLine="true" lineEnding="Null" />
   </targets>
 
   <rules>
@@ -95,7 +95,7 @@ In this example there would be a [Graylog2] server that consumes the queued [GEL
   
   <targets async="true">
 	<target xsi:type="Network" name="GelfHttp" address="http://localhost:12201/gelf">
-		<layout type="GelfLayout" facility="MyFacility">
+		<layout type="GelfLayout">
 			<field name="threadid" layout="${threadid}" />
 		</layout>
 	</target>

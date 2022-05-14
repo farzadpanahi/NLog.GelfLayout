@@ -244,7 +244,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var gelfRenderer = new GelfLayoutRenderer();
 
             gelfRenderer.Facility = facility;
-            gelfRenderer.IncludeMdlc = true;
+            gelfRenderer.IncludeScopeProperties = true;
 
             var logEvent = new LogEventInfo
             {
@@ -342,7 +342,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var hostname = Dns.GetHostName();
             var gelfLayout = new GelfLayout();
             gelfLayout.Facility = facility;
-            gelfLayout.IncludeAllProperties = true;
+            gelfLayout.IncludeEventProperties = true;
 
             var logEvent = new LogEventInfo
             {
@@ -389,7 +389,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var hostname = Dns.GetHostName();
             var gelfLayout = new GelfLayout();
             gelfLayout.Facility = facility;
-            gelfLayout.IncludeAllProperties = true;
+            gelfLayout.IncludeEventProperties = true;
             gelfLayout.ExcludeProperties.Add("BadBoy");
 
             var logEvent = new LogEventInfo
