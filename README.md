@@ -1,7 +1,7 @@
 # NLog.GelfLayout
 [![Version](https://img.shields.io/nuget/v/NLog.GelfLayout.svg)](https://www.nuget.org/packages/NLog.GelfLayout) 
 
-GelfLayout-package contains custom layout renderer for [NLog] to format log messages as [GELF] Json structures.
+GelfLayout-package contains custom layout renderer for [NLog] to format log messages as [GELF] Json structures for [GrayLog]-server.
 
 ## Usage
 
@@ -84,6 +84,27 @@ In this example there would be a [Graylog2] server that consumes the queued [GEL
 </nlog>
 ```
 
+### Sample Usage with NLog Network Target and UDP
+
+Notice the options `Compress="GZip"` and `compressMinBytes="1024"` requires NLog v5.0
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+  <extensions>
+    <add assembly="NLog.Layouts.GelfLayout" />
+  </extensions>
+  
+  <targets async="true">
+	<target xsi:type="Network" name="GelfUdp" address="udp://graylog:12201" layout="${gelf}" compress="GZip" compressMinBytes="1000" maxMessageSize="8150" />
+  </targets>
+
+  <rules>
+    <logger name="*" minlevel="Debug" writeTo="GelfUdp" />
+  </rules>
+</nlog>
+```
+
 ### Sample Usage with custom extra fields
 
 ```xml
@@ -111,8 +132,8 @@ In this example there would be a [Graylog2] server that consumes the queued [GEL
 [GELF] converter module is all taken from [Gelf4NLog] by [Ozan Seymen](https://github.com/seymen)
 
 [NLog]: http://nlog-project.org/
-[GrayLog2]: http://graylog2.org/
-[Gelf]: https://www.graylog2.org/resources/gelf/specification
+[GrayLog]: https://www.graylog.org/features/gelf
+[GELF]: https://docs.graylog.org/docs/gelf
 [Gelf4NLog]: https://github.com/seymen/Gelf4NLog
 [RabbitMQ-haf]: https://github.com/haf/NLog.RabbitMQ
 [RabbitMQ-adolya]: https://www.nuget.org/packages/Nlog.RabbitMQ.Target/
