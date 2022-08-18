@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net471;netstandard2.0;netstandard1.3</TargetFrameworks>
 
-    <Version>1.3</Version>
+    <Version>1.4</Version>
     <Title>NLog.GelfLayout</Title>
     <PackageId>NLog.GelfLayout</PackageId>
     <Company>Farzad Panahi</Company>
@@ -12,9 +12,8 @@
     <Copyright>Copyright 2020</Copyright>
 
     <PackageReleaseNotes>
-IncludeLegacyFields is now false by default, unless having specified legacy Facility-field 
-Updated to .NET Framework 4.7.1
-Introduced IncludeEventProperties + IncludeScopeProperties to match NLog 5.0
+- Updated to NLog v4.7.15 (bug fixes)
+- Updated to Newtonsoft.Json v13.0.1 (bug fixes)
     </PackageReleaseNotes>
     <PackageTags>NLog;Gelf;graylog2;Log;Logging</PackageTags>
     <PackageProjectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</PackageProjectUrl>
@@ -29,8 +28,8 @@ Introduced IncludeEventProperties + IncludeScopeProperties to match NLog 5.0
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.5.11" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <PackageReference Include="NLog" Version="4.7.15" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 </Project>
