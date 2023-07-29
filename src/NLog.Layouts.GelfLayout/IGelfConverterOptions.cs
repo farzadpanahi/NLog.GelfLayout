@@ -43,11 +43,16 @@ namespace NLog.Layouts.GelfLayout
         bool IncludeLegacyFields { get; }
 
         /// <summary>
-        /// Graylog Facility
+        /// Graylog Message Facility-field
         /// </summary>
         /// <remarks>
         /// Ignored when <see cref="IncludeLegacyFields"/> = false
         /// </remarks>
         Layout Facility { get; }
+
+        /// <summary>
+        /// Graylog Message Host-field
+        /// </summary>
+        Layout HostName { get; }
     }
 }

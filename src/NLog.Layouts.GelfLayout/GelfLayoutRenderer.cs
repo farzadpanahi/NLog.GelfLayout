@@ -53,11 +53,14 @@ namespace NLog.Layouts.GelfLayout
             set
             {
                 _facility = value;
-                if (!_includeLegacyFields.HasValue)
+                if (!_includeLegacyFields.HasValue && value != null && !(value is SimpleLayout simpleLayout && simpleLayout.IsFixedText && string.IsNullOrEmpty(simpleLayout.FixedText)))
                     IncludeLegacyFields = true;
             }
         }
         private Layout _facility;
+
+        /// <inheritdoc/>
+        public Layout HostName { get; set; } = "${hostname}";
 
         IList<GelfField> IGelfConverterOptions.ExtraFields { get => ExtraFields; }
 
