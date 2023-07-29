@@ -43,6 +43,13 @@ namespace NLog.Layouts.GelfLayout
             //Construct the instance of GelfMessage
             jsonWriter.WriteStartObject();
 
+            var hostname = _hostName ?? (_hostName = converterOptions.HostName?.Render(logEventInfo));
+            if (string.IsNullOrEmpty(hostname))
+            {
+                _hostName = null;
+                hostname = "UnknownHost";
+            }
+
             if (converterOptions.IncludeLegacyFields)
             {
                 var facility = converterOptions.Facility?.Render(logEventInfo);
@@ -50,11 +57,11 @@ namespace NLog.Layouts.GelfLayout
                 {
                     facility = "GELF";   //Spec says: facility must be set by the client to "GELF" if empty
                 }
-                WriteGelfVersionLegacy(jsonWriter, logEventInfo, logEventMessage, shortMessage, facility);
+                WriteGelfVersionLegacy(jsonWriter, logEventInfo, logEventMessage, shortMessage, hostname, facility);
             }
             else
             {
-                WriteGelfVersion11(jsonWriter, logEventInfo, logEventMessage, shortMessage);
+                WriteGelfVersion11(jsonWriter, logEventInfo, logEventMessage, shortMessage, hostname);
             }
 
             //We will persist them "Additional Fields" according to Gelf spec
@@ -123,7 +130,7 @@ namespace NLog.Layouts.GelfLayout
         /// <summary>
         /// See http://docs.graylog.org/en/2.0/pages/gelf.html#gelf-payload-specification "Specification (version 1.0)"
         /// </summary>
-        private void WriteGelfVersionLegacy(JsonWriter jsonWriter, LogEventInfo logEventInfo, string logEventMessage, string shortMessage, string facility)
+        private static void WriteGelfVersionLegacy(JsonWriter jsonWriter, LogEventInfo logEventInfo, string logEventMessage, string shortMessage, string hostname, string facility)
         {
             jsonWriter.WritePropertyName("facility");
             jsonWriter.WriteValue((string.IsNullOrEmpty(facility) ? "GELF" : facility));
@@ -135,7 +142,7 @@ namespace NLog.Layouts.GelfLayout
             jsonWriter.WritePropertyName("full_message");
             jsonWriter.WriteValue(logEventMessage);
             jsonWriter.WritePropertyName("host");
-            jsonWriter.WriteValue((_hostName ?? (_hostName = GetHostName())) ?? "UnknownHost");
+            jsonWriter.WriteValue(hostname);
             jsonWriter.WritePropertyName("level");
             jsonWriter.WriteValue(logEventInfo.Level.GetOrdinal());
             jsonWriter.WritePropertyName("line");
@@ -159,12 +166,12 @@ namespace NLog.Layouts.GelfLayout
         ///     file - optional, deprecated. Send as additional field instead.
         ///     line - optional, deprecated. Send as additional field instead.
         /// </remarks>
-        private void WriteGelfVersion11(JsonWriter jsonWriter, LogEventInfo logEventInfo, string logEventMessage, string shortMessage)
+        private static void WriteGelfVersion11(JsonWriter jsonWriter, LogEventInfo logEventInfo, string logEventMessage, string shortMessage, string hostname)
         {
             jsonWriter.WritePropertyName("version");
             jsonWriter.WriteValue(GelfVersion11);
             jsonWriter.WritePropertyName("host");
-            jsonWriter.WriteValue((_hostName ?? (_hostName = GetHostName())) ?? "UnknownHost");
+            jsonWriter.WriteValue(hostname);
             jsonWriter.WritePropertyName("short_message");
             jsonWriter.WriteValue(shortMessage);
             jsonWriter.WritePropertyName("full_message");
@@ -239,22 +246,6 @@ namespace NLog.Layouts.GelfLayout
         public static decimal ToUnixTimeStamp(DateTime timeStamp)
         {
             return Convert.ToDecimal(timeStamp.ToUniversalTime().Subtract(UnixDateStart).TotalSeconds);
-        }
-
-        private static string GetHostName()
-        {
-            try
-            {
-                return Dns.GetHostName();
-            }
-            catch (Exception ex)
-            {
-                InternalLogger.Error(ex, "GELF HostName Lookup Failed {0}", ex.Message);
-                if (LogManager.ThrowExceptions)
-                    throw;
-
-                return null;
-            }
         }
 
         private void AddAdditionalField(JsonWriter jsonWriter, string key, object propertyValue)
