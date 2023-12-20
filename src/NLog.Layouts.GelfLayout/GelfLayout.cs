@@ -53,6 +53,13 @@ namespace NLog.Layouts.GelfLayout
         public Layout HostName { get => _renderer.HostName; set => _renderer.HostName = value; }
 
         /// <inheritdoc/>
+        public Layout MessageLayout
+        {
+            get => _renderer.MessageLayout;
+            set => _renderer.MessageLayout = value;
+        }
+        
+        /// <inheritdoc/>
         protected override void RenderFormattedMessage(LogEventInfo logEvent, StringBuilder target)
         {
             _renderer.RenderAppend(logEvent, target);

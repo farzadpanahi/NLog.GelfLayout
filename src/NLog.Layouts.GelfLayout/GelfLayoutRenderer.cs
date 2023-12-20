@@ -61,12 +61,17 @@ namespace NLog.Layouts.GelfLayout
 
         /// <inheritdoc/>
         public Layout HostName { get; set; } = "${hostname}";
+        
+        /// <inheritdoc/>
+        public Layout MessageLayout { get; set; } = "${message}";
 
         IList<GelfField> IGelfConverterOptions.ExtraFields { get => ExtraFields; }
 
         internal IList<GelfField> ExtraFields { get; set; }
 
         public ISet<string> ExcludeProperties { get; set; } = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+
+
 
         internal void RenderAppend(LogEventInfo logEvent, StringBuilder builder)
         {
@@ -84,7 +89,7 @@ namespace NLog.Layouts.GelfLayout
                 {
                     JsonTextWriter jw = new JsonTextWriter(sw);
                     jw.Formatting = Formatting.None;
-                    _converter.ConvertToGelfMessage(jw, logEvent, this);
+                    _converter.ConvertToGelfMessage(jw, logEvent, this, MessageLayout);
                 }
             }
             catch

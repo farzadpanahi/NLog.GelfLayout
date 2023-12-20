@@ -54,5 +54,10 @@ namespace NLog.Layouts.GelfLayout
         /// Graylog Message Host-field
         /// </summary>
         Layout HostName { get; }
+        
+        /// <summary>
+        /// Layout of the rendered Message
+        /// </summary>
+        Layout MessageLayout { get; }
     }
 }

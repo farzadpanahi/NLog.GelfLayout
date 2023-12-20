@@ -17,6 +17,7 @@ PM> Install-Package NLog.GelfLayout
 - _IncludeLegacyFields_ - Include deprecated fields no longer part of official GelfVersion 1.1 specification. Boolean. Default = false
 - _Facility_ - Legacy Graylog Message Facility-field, when specifed it will fallback to legacy GelfVersion 1.0. Ignored when IncludeLegacyFields=False
 - _HostName_ - Override Graylog Message Host-field. Default: `${hostname}`
+- _MessageLayout_ - Override Default Message Layout. Default `${message}`
 
 ### Sample Usage with RabbitMQ Target
 You can configure this layout for [NLog] Targets that respect Layout attribute. 
