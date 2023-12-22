@@ -24,17 +24,17 @@ namespace NLog.Layouts.GelfLayout
 
         private string _hostName;
 
-        public void ConvertToGelfMessage(JsonWriter jsonWriter, LogEventInfo logEventInfo, IGelfConverterOptions converterOptions, Layout messageLayout)
+        public void ConvertToGelfMessage(JsonWriter jsonWriter, LogEventInfo logEventInfo, IGelfConverterOptions converterOptions)
         {
             //Retrieve the formatted message from LogEventInfo
-            var logEventMessage = messageLayout.Render(logEventInfo);
+            var logEventMessage = converterOptions.FullMessageLayout.Render(logEventInfo);
             if (logEventMessage.Length > FullMessageMaxLength)
             {
                 logEventMessage = logEventMessage.Substring(0, FullMessageMaxLength);
             }
 
             //Figure out the short message
-            var shortMessage = logEventMessage;
+            var shortMessage = converterOptions.ShortMessageLayout.Render(logEventInfo);
             if (shortMessage.Length > ShortMessageMaxLength)
             {
                 shortMessage = shortMessage.Substring(0, ShortMessageMaxLength);

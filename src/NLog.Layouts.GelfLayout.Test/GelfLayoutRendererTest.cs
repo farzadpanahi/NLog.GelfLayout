@@ -424,7 +424,7 @@ namespace NLog.Layouts.GelfLayout.Test
             Assert.AreEqual(expectedGelf, renderedGelf);
         }
         
-                [TestMethod]
+        [TestMethod]
         public void CanRenderGelfCustomMessage()
         {
             var loggerName = "TestLogger";
@@ -444,7 +444,8 @@ namespace NLog.Layouts.GelfLayout.Test
                 Message = message,
                 TimeStamp = dateTime,
             };
-            gelfRenderer.MessageLayout = "${hostname}|${message}";
+            gelfRenderer.FullMessageLayout = "${hostname}|${message}";
+            gelfRenderer.ShortMessageLayout = "short|${message}";
             var renderedGelf = gelfRenderer.Render(logEvent);
             var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
             var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
@@ -454,7 +455,7 @@ namespace NLog.Layouts.GelfLayout.Test
                     + "\"host\":\"{2}\","
                     + "\"level\":{3},"
                     + "\"line\":0,"
-                    + "\"short_message\":\"{2}|{4}\","
+                    + "\"short_message\":\"short|{4}\","
                     + "\"timestamp\":{5},"
                     + "\"version\":\"1.1\","
                     + "\"_LoggerName\":\"{6}\"}}",
@@ -480,8 +481,8 @@ namespace NLog.Layouts.GelfLayout.Test
             var gelfRenderer = new GelfLayoutRenderer();
 
             gelfRenderer.IncludeLegacyFields = false;
-            gelfRenderer.MessageLayout = "${hostname}|${message}";
-
+            gelfRenderer.FullMessageLayout = "${hostname}|${message}";
+            gelfRenderer.ShortMessageLayout = "short|${message}";
             var logEvent = new LogEventInfo
             {
                 LoggerName = loggerName,
@@ -495,7 +496,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
                 "{{\"version\":\"1.1\","
                     + "\"host\":\"{0}\","
-                    + "\"short_message\":\"{0}|{1}\","
+                    + "\"short_message\":\"short|{1}\","
                     + "\"full_message\":\"{0}|{2}\","
                     + "\"timestamp\":{3},"
                     + "\"level\":{4},"
@@ -531,7 +532,8 @@ namespace NLog.Layouts.GelfLayout.Test
 
             gelfRenderer.Facility = facility;
 
-            gelfRenderer.MessageLayout = "${hostname}|${message}";
+            gelfRenderer.FullMessageLayout = "${hostname}|${message}";
+            gelfRenderer.ShortMessageLayout = "short|${message}";
             
             var logEvent = new LogEventInfo
             {
@@ -567,7 +569,7 @@ namespace NLog.Layouts.GelfLayout.Test
                     + "\"host\":\"{2}\","
                     + "\"level\":{3},"
                     + "\"line\":0,"
-                    + "\"short_message\":\"{2}|{4}\","
+                    + "\"short_message\":\"short|{4}\","
                     + "\"timestamp\":{5},"
                     + "\"version\":\"1.1\","
                     + "{6},"
@@ -607,7 +609,8 @@ namespace NLog.Layouts.GelfLayout.Test
                 Exception = exception,
             };
 
-            gelfRenderer.MessageLayout = "${hostname}|${message}";
+            gelfRenderer.FullMessageLayout = "${hostname}|${message}";
+            gelfRenderer.ShortMessageLayout = "short|${message}";
             
             var renderedGelf = gelfRenderer.Render(logEvent);
             var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
@@ -631,7 +634,7 @@ namespace NLog.Layouts.GelfLayout.Test
                     + "\"host\":\"{2}\","
                     + "\"level\":{3},"
                     + "\"line\":0,"
-                    + "\"short_message\":\"{2}|{4}\","
+                    + "\"short_message\":\"short|{4}\","
                     + "\"timestamp\":{5},"
                     + "\"version\":\"1.1\","
                     + "{6},"
@@ -661,7 +664,8 @@ namespace NLog.Layouts.GelfLayout.Test
 
             gelfRenderer.Facility = facility;
             gelfRenderer.IncludeScopeProperties = true;
-            gelfRenderer.MessageLayout = "${hostname}|${message}";
+            gelfRenderer.FullMessageLayout = "${hostname}|${message}";
+            gelfRenderer.ShortMessageLayout = "short|${message}";
             var logEvent = new LogEventInfo
             {
                 LoggerName = loggerName,
@@ -682,7 +686,7 @@ namespace NLog.Layouts.GelfLayout.Test
                         + "\"host\":\"{2}\","
                         + "\"level\":{3},"
                         + "\"line\":0,"
-                        + "\"short_message\":\"{2}|{4}\","
+                        + "\"short_message\":\"short|{4}\","
                         + "\"timestamp\":{5},"
                         + "\"version\":\"1.1\","
                         + "\"_LoggerName\":\"{6}\","
@@ -713,7 +717,8 @@ namespace NLog.Layouts.GelfLayout.Test
             gelfLayout.Facility = facility;
             gelfLayout.ExtraFields.Add(new GelfField("ThreadId", "${threadid}") { PropertyType = typeof(int) });
 
-            gelfLayout.MessageLayout = "${hostname}|${message}";
+            gelfLayout.FullMessageLayout = "${hostname}|${message}";
+            gelfLayout.ShortMessageLayout = "short|${message}";
             
             var logEvent = new LogEventInfo
             {
@@ -733,7 +738,7 @@ namespace NLog.Layouts.GelfLayout.Test
                     + "\"host\":\"{2}\","
                     + "\"level\":{3},"
                     + "\"line\":0,"
-                    + "\"short_message\":\"{2}|{4}\","
+                    + "\"short_message\":\"short|{4}\","
                     + "\"timestamp\":{5},"
                     + "\"version\":\"1.1\","
                     + "\"_LoggerName\":\"{6}\","
@@ -762,7 +767,8 @@ namespace NLog.Layouts.GelfLayout.Test
             gelfLayout.Facility = facility;
             gelfLayout.IncludeEventProperties = true;
 
-            gelfLayout.MessageLayout = "${hostname}|${message}";
+            gelfLayout.FullMessageLayout = "${hostname}|${message}";
+            gelfLayout.ShortMessageLayout = "short|${message}";
             
             var logEvent = new LogEventInfo
             {
@@ -782,7 +788,7 @@ namespace NLog.Layouts.GelfLayout.Test
                     + "\"host\":\"{2}\","
                     + "\"level\":{3},"
                     + "\"line\":0,"
-                    + "\"short_message\":\"{2}|{4}\","
+                    + "\"short_message\":\"short|{4}\","
                     + "\"timestamp\":{5},"
                     + "\"version\":\"1.1\","
                     + "\"_BadBoy\":{{\"BadArray\":[],\"BadProperty\":\"{6}\"}},"
@@ -811,7 +817,8 @@ namespace NLog.Layouts.GelfLayout.Test
             gelfLayout.Facility = facility;
             gelfLayout.IncludeEventProperties = true;
             gelfLayout.ExcludeProperties.Add("BadBoy");
-            gelfLayout.MessageLayout = "${hostname}|${message}";
+            gelfLayout.FullMessageLayout = "${hostname}|${message}";
+            gelfLayout.ShortMessageLayout = "short|${message}";
             var logEvent = new LogEventInfo
             {
                 LoggerName = loggerName,
@@ -830,7 +837,7 @@ namespace NLog.Layouts.GelfLayout.Test
                     + "\"host\":\"{2}\","
                     + "\"level\":{3},"
                     + "\"line\":0,"
-                    + "\"short_message\":\"{2}|{4}\","
+                    + "\"short_message\":\"short|{4}\","
                     + "\"timestamp\":{5},"
                     + "\"version\":\"1.1\","
                     + "\"_LoggerName\":\"{6}\"}}",

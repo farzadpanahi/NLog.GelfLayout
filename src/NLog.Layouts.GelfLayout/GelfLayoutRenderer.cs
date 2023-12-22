@@ -63,7 +63,10 @@ namespace NLog.Layouts.GelfLayout
         public Layout HostName { get; set; } = "${hostname}";
         
         /// <inheritdoc/>
-        public Layout MessageLayout { get; set; } = "${message}";
+        public Layout FullMessageLayout { get; set; } = "${message}";
+        
+        /// <inheritdoc/>
+        public Layout ShortMessageLayout { get; set; } = "${message}";
 
         IList<GelfField> IGelfConverterOptions.ExtraFields { get => ExtraFields; }
 
@@ -89,7 +92,7 @@ namespace NLog.Layouts.GelfLayout
                 {
                     JsonTextWriter jw = new JsonTextWriter(sw);
                     jw.Formatting = Formatting.None;
-                    _converter.ConvertToGelfMessage(jw, logEvent, this, MessageLayout);
+                    _converter.ConvertToGelfMessage(jw, logEvent, this);
                 }
             }
             catch

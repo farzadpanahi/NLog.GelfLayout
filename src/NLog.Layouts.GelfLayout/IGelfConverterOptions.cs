@@ -56,8 +56,13 @@ namespace NLog.Layouts.GelfLayout
         Layout HostName { get; }
         
         /// <summary>
-        /// Layout of the rendered Message
+        /// Layout of the rendered Full Message
         /// </summary>
-        Layout MessageLayout { get; }
+        Layout FullMessageLayout { get; }
+        
+        /// <summary>
+        /// Layout of the rendered Short Message
+        /// </summary>
+        Layout ShortMessageLayout { get; }
     }
 }
