@@ -61,12 +61,20 @@ namespace NLog.Layouts.GelfLayout
 
         /// <inheritdoc/>
         public Layout HostName { get; set; } = "${hostname}";
+        
+        /// <inheritdoc/>
+        public Layout FullMessageLayout { get; set; } = "${message}";
+        
+        /// <inheritdoc/>
+        public Layout ShortMessageLayout { get; set; } = "${message}";
 
         IList<GelfField> IGelfConverterOptions.ExtraFields { get => ExtraFields; }
 
         internal IList<GelfField> ExtraFields { get; set; }
 
         public ISet<string> ExcludeProperties { get; set; } = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+
+
 
         internal void RenderAppend(LogEventInfo logEvent, StringBuilder builder)
         {

@@ -27,14 +27,14 @@ namespace NLog.Layouts.GelfLayout
         public void ConvertToGelfMessage(JsonWriter jsonWriter, LogEventInfo logEventInfo, IGelfConverterOptions converterOptions)
         {
             //Retrieve the formatted message from LogEventInfo
-            var logEventMessage = logEventInfo.FormattedMessage ?? string.Empty;
+            var logEventMessage = converterOptions.FullMessageLayout?.Render(logEventInfo) ?? string.Empty;
             if (logEventMessage.Length > FullMessageMaxLength)
             {
                 logEventMessage = logEventMessage.Substring(0, FullMessageMaxLength);
             }
 
             //Figure out the short message
-            var shortMessage = logEventMessage;
+            var shortMessage = converterOptions.ShortMessageLayout?.Render(logEventInfo) ?? string.Empty;
             if (shortMessage.Length > ShortMessageMaxLength)
             {
                 shortMessage = shortMessage.Substring(0, ShortMessageMaxLength);
