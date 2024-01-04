@@ -444,8 +444,8 @@ namespace NLog.Layouts.GelfLayout.Test
                 Message = message,
                 TimeStamp = dateTime,
             };
-            gelfRenderer.FullMessageLayout = "${hostname}|${message}";
-            gelfRenderer.ShortMessageLayout = "short|${message}";
+            gelfRenderer.FullMessage = "${hostname}|${message}";
+            gelfRenderer.ShortMessage = "short|${message}";
             var renderedGelf = gelfRenderer.Render(logEvent);
             var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
             var expectedGelf = string.Format(System.Globalization.CultureInfo.InvariantCulture,
@@ -481,8 +481,8 @@ namespace NLog.Layouts.GelfLayout.Test
             var gelfRenderer = new GelfLayoutRenderer();
 
             gelfRenderer.IncludeLegacyFields = false;
-            gelfRenderer.FullMessageLayout = "${hostname}|${message}";
-            gelfRenderer.ShortMessageLayout = "short|${message}";
+            gelfRenderer.FullMessage = "${hostname}|${message}";
+            gelfRenderer.ShortMessage = "short|${message}";
             var logEvent = new LogEventInfo
             {
                 LoggerName = loggerName,
@@ -532,8 +532,8 @@ namespace NLog.Layouts.GelfLayout.Test
 
             gelfRenderer.Facility = facility;
 
-            gelfRenderer.FullMessageLayout = "${hostname}|${message}";
-            gelfRenderer.ShortMessageLayout = "short|${message}";
+            gelfRenderer.FullMessage = "${hostname}|${message}";
+            gelfRenderer.ShortMessage = "short|${message}";
             
             var logEvent = new LogEventInfo
             {
@@ -609,8 +609,8 @@ namespace NLog.Layouts.GelfLayout.Test
                 Exception = exception,
             };
 
-            gelfRenderer.FullMessageLayout = "${hostname}|${message}";
-            gelfRenderer.ShortMessageLayout = "short|${message}";
+            gelfRenderer.FullMessage = "${hostname}|${message}";
+            gelfRenderer.ShortMessage = "short|${message}";
             
             var renderedGelf = gelfRenderer.Render(logEvent);
             var expectedDateTime = GelfConverter.ToUnixTimeStamp(dateTime);
@@ -664,8 +664,8 @@ namespace NLog.Layouts.GelfLayout.Test
 
             gelfRenderer.Facility = facility;
             gelfRenderer.IncludeScopeProperties = true;
-            gelfRenderer.FullMessageLayout = "${hostname}|${message}";
-            gelfRenderer.ShortMessageLayout = "short|${message}";
+            gelfRenderer.FullMessage = "${hostname}|${message}";
+            gelfRenderer.ShortMessage = "short|${message}";
             var logEvent = new LogEventInfo
             {
                 LoggerName = loggerName,
@@ -717,8 +717,8 @@ namespace NLog.Layouts.GelfLayout.Test
             gelfLayout.Facility = facility;
             gelfLayout.ExtraFields.Add(new GelfField("ThreadId", "${threadid}") { PropertyType = typeof(int) });
 
-            gelfLayout.FullMessageLayout = "${hostname}|${message}";
-            gelfLayout.ShortMessageLayout = "short|${message}";
+            gelfLayout.FullMessage = "${hostname}|${message}";
+            gelfLayout.ShortMessage = "short|${message}";
             
             var logEvent = new LogEventInfo
             {
@@ -767,8 +767,8 @@ namespace NLog.Layouts.GelfLayout.Test
             gelfLayout.Facility = facility;
             gelfLayout.IncludeEventProperties = true;
 
-            gelfLayout.FullMessageLayout = "${hostname}|${message}";
-            gelfLayout.ShortMessageLayout = "short|${message}";
+            gelfLayout.FullMessage = "${hostname}|${message}";
+            gelfLayout.ShortMessage = "short|${message}";
             
             var logEvent = new LogEventInfo
             {
@@ -817,8 +817,8 @@ namespace NLog.Layouts.GelfLayout.Test
             gelfLayout.Facility = facility;
             gelfLayout.IncludeEventProperties = true;
             gelfLayout.ExcludeProperties.Add("BadBoy");
-            gelfLayout.FullMessageLayout = "${hostname}|${message}";
-            gelfLayout.ShortMessageLayout = "short|${message}";
+            gelfLayout.FullMessage = "${hostname}|${message}";
+            gelfLayout.ShortMessage = "short|${message}";
             var logEvent = new LogEventInfo
             {
                 LoggerName = loggerName,

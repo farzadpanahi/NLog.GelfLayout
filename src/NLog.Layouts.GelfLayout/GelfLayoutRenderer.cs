@@ -63,10 +63,10 @@ namespace NLog.Layouts.GelfLayout
         public Layout HostName { get; set; } = "${hostname}";
         
         /// <inheritdoc/>
-        public Layout FullMessageLayout { get; set; } = "${message}";
+        public Layout FullMessage { get; set; } = "${message}";
         
         /// <inheritdoc/>
-        public Layout ShortMessageLayout { get; set; } = "${message}";
+        public Layout ShortMessage { get; set; } = "${message}";
 
         IList<GelfField> IGelfConverterOptions.ExtraFields { get => ExtraFields; }
 
