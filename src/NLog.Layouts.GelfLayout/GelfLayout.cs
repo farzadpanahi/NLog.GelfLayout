@@ -53,10 +53,10 @@ namespace NLog.Layouts.GelfLayout
         public Layout HostName { get => _renderer.HostName; set => _renderer.HostName = value; }
 
         /// <inheritdoc/>
-        public Layout FullMessageLayout { get => _renderer.FullMessageLayout; set => _renderer.FullMessageLayout = value; }
+        public Layout FullMessage { get => _renderer.FullMessage; set => _renderer.FullMessage = value; }
         
         /// <inheritdoc/>
-        public Layout ShortMessageLayout { get => _renderer.ShortMessageLayout; set => _renderer.ShortMessageLayout = value; }
+        public Layout ShortMessage { get => _renderer.ShortMessage; set => _renderer.ShortMessage = value; }
         
         /// <inheritdoc/>
         protected override void RenderFormattedMessage(LogEventInfo logEvent, StringBuilder target)

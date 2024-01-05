@@ -27,14 +27,14 @@ namespace NLog.Layouts.GelfLayout
         public void ConvertToGelfMessage(JsonWriter jsonWriter, LogEventInfo logEventInfo, IGelfConverterOptions converterOptions)
         {
             //Retrieve the formatted message from LogEventInfo
-            var logEventMessage = converterOptions.FullMessageLayout?.Render(logEventInfo) ?? string.Empty;
-            if (logEventMessage.Length > FullMessageMaxLength)
+            var fullMessage = converterOptions.FullMessage?.Render(logEventInfo) ?? string.Empty;
+            if (fullMessage.Length > FullMessageMaxLength)
             {
-                logEventMessage = logEventMessage.Substring(0, FullMessageMaxLength);
+                fullMessage = fullMessage.Substring(0, FullMessageMaxLength);
             }
 
             //Figure out the short message
-            var shortMessage = converterOptions.ShortMessageLayout?.Render(logEventInfo) ?? string.Empty;
+            var shortMessage = converterOptions.ShortMessage?.Render(logEventInfo) ?? string.Empty;
             if (shortMessage.Length > ShortMessageMaxLength)
             {
                 shortMessage = shortMessage.Substring(0, ShortMessageMaxLength);
@@ -57,11 +57,11 @@ namespace NLog.Layouts.GelfLayout
                 {
                     facility = "GELF";   //Spec says: facility must be set by the client to "GELF" if empty
                 }
-                WriteGelfVersionLegacy(jsonWriter, logEventInfo, logEventMessage, shortMessage, hostname, facility);
+                WriteGelfVersionLegacy(jsonWriter, logEventInfo, fullMessage, shortMessage, hostname, facility);
             }
             else
             {
-                WriteGelfVersion11(jsonWriter, logEventInfo, logEventMessage, shortMessage, hostname);
+                WriteGelfVersion11(jsonWriter, logEventInfo, fullMessage, shortMessage, hostname);
             }
 
             //We will persist them "Additional Fields" according to Gelf spec
@@ -130,7 +130,7 @@ namespace NLog.Layouts.GelfLayout
         /// <summary>
         /// See http://docs.graylog.org/en/2.0/pages/gelf.html#gelf-payload-specification "Specification (version 1.0)"
         /// </summary>
-        private static void WriteGelfVersionLegacy(JsonWriter jsonWriter, LogEventInfo logEventInfo, string logEventMessage, string shortMessage, string hostname, string facility)
+        private static void WriteGelfVersionLegacy(JsonWriter jsonWriter, LogEventInfo logEventInfo, string fullMessage, string shortMessage, string hostname, string facility)
         {
             jsonWriter.WritePropertyName("facility");
             jsonWriter.WriteValue((string.IsNullOrEmpty(facility) ? "GELF" : facility));
@@ -140,7 +140,7 @@ namespace NLog.Layouts.GelfLayout
             jsonWriter.WritePropertyName("file");
             jsonWriter.WriteValue(callSiteFileName);
             jsonWriter.WritePropertyName("full_message");
-            jsonWriter.WriteValue(logEventMessage);
+            jsonWriter.WriteValue(fullMessage);
             jsonWriter.WritePropertyName("host");
             jsonWriter.WriteValue(hostname);
             jsonWriter.WritePropertyName("level");
@@ -166,7 +166,7 @@ namespace NLog.Layouts.GelfLayout
         ///     file - optional, deprecated. Send as additional field instead.
         ///     line - optional, deprecated. Send as additional field instead.
         /// </remarks>
-        private static void WriteGelfVersion11(JsonWriter jsonWriter, LogEventInfo logEventInfo, string logEventMessage, string shortMessage, string hostname)
+        private static void WriteGelfVersion11(JsonWriter jsonWriter, LogEventInfo logEventInfo, string fullMessage, string shortMessage, string hostname)
         {
             jsonWriter.WritePropertyName("version");
             jsonWriter.WriteValue(GelfVersion11);
@@ -175,7 +175,7 @@ namespace NLog.Layouts.GelfLayout
             jsonWriter.WritePropertyName("short_message");
             jsonWriter.WriteValue(shortMessage);
             jsonWriter.WritePropertyName("full_message");
-            jsonWriter.WriteValue(logEventMessage);
+            jsonWriter.WriteValue(fullMessage);
             jsonWriter.WritePropertyName("timestamp");
             jsonWriter.WriteValue(ToUnixTimeStamp(logEventInfo.TimeStamp));
             jsonWriter.WritePropertyName("level");
