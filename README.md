@@ -99,7 +99,7 @@ Notice the options `Compress="GZip"` and `compressMinBytes="1024"` requires NLog
   </extensions>
   
   <targets async="true">
-	<target xsi:type="Network" name="GelfUdp" address="udp://graylog:12201" layout="${gelf}" compress="GZip" compressMinBytes="1000" maxMessageSize="8150" />
+	<target xsi:type="Network" name="GelfUdp" address="udp://graylog:12201" layout="${gelf}" compress="GZip" compressMinBytes="1000" />
   </targets>
 
   <rules>
@@ -107,6 +107,10 @@ Notice the options `Compress="GZip"` and `compressMinBytes="1024"` requires NLog
   </rules>
 </nlog>
 ```
+
+Notice when message exceeds the default MTU-size (usually 1500 bytes), then the IP-network-layer will attempt to perform IP-fragmentation and handle messages up to 65000 bytes.
+But IP fragmentation will fail if the network switch/router has been configured to have DontFragment enabled, where it will drop the network packets.
+Usually one will only use UDP on the local network, since no authentication or security, and network switches on the local-network seldom has DontFragment enabled (or under your control to be configured).
 
 ### Sample Usage with custom extra fields
 
