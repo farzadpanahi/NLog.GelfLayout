@@ -6,7 +6,6 @@ using NLog.Config;
 namespace NLog.Layouts.GelfLayout
 {
     [Layout("GelfLayout")]
-    [ThreadSafe]
     [ThreadAgnostic]
     public class GelfLayout : Layout, IGelfConverterOptions
     {

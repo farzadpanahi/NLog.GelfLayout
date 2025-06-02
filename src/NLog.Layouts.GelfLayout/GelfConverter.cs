@@ -1,11 +1,15 @@
-﻿using System;
+﻿using NLog.Common;
+using NLog.Targets;
+using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
+using System.Linq;
 using System.Net;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NLog.Common;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NLog.Layouts.GelfLayout
 {
@@ -15,16 +19,18 @@ namespace NLog.Layouts.GelfLayout
         private const int FullMessageMaxLength = 16383; // Truncate due to: https://github.com/Graylog2/graylog2-server/issues/873
         private const string GelfVersion11 = "1.1";
         private static DateTime UnixDateStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        private static readonly JsonSerializerSettings _jsonSerializerSettings = CreateJsonSerializerSettings();
-        private static readonly JsonConverter[] _emptyJsonConverters = new JsonConverter[0];
-        private JsonSerializer JsonSerializer => _jsonSerializer ?? (_jsonSerializer = JsonSerializer.CreateDefault(_jsonSerializerSettings));
-        private JsonSerializer _jsonSerializer;
 
         private static readonly HashSet<string> ExcludePropertyKeys = new HashSet<string>(new string[] { "LoggerName", "_LoggerName", "ExceptionSource", "_ExceptionSource", "ExceptionMessage", "_ExceptionMessage", "ExceptionType", "_ExceptionType", "StackTrace", "_StackTrace" }, StringComparer.OrdinalIgnoreCase);
 
         private string _hostName;
 
-        public void ConvertToGelfMessage(JsonWriter jsonWriter, LogEventInfo logEventInfo, IGelfConverterOptions converterOptions)
+        private static readonly JsonWriterOptions _jsonWriterOptions = new JsonWriterOptions
+        {
+            Indented = false,
+            SkipValidation = false
+        };
+
+        public void ConvertToGelfMessage(Utf8JsonWriter jsonWriter, LogEventInfo logEventInfo, IGelfConverterOptions converterOptions)
         {
             //Retrieve the formatted message from LogEventInfo
             var fullMessage = converterOptions.FullMessage?.Render(logEventInfo) ?? string.Empty;
@@ -97,7 +103,7 @@ namespace NLog.Layouts.GelfLayout
             ICollection<string> mdlcKeys = null;
             if (converterOptions.IncludeScopeProperties)
             {
-                mdlcKeys = MappedDiagnosticsLogicalContext.GetNames();
+                mdlcKeys = ScopeContext.GetAllProperties().Select(x => x.Key).ToList();
                 bool foundMdlcItem = false;
                 bool hasExcludeProperties = converterOptions.ExcludeProperties?.Count > 0;
                 foreach (string key in mdlcKeys)
@@ -112,7 +118,8 @@ namespace NLog.Layouts.GelfLayout
                         continue;
 
                     foundMdlcItem = true;
-                    object propertyValue = MappedDiagnosticsLogicalContext.GetObject(key);
+                    object propertyValue;
+                    ScopeContext.TryGetProperty(key, out propertyValue);
                     AddAdditionalField(jsonWriter, key, propertyValue);
                 }
                 if (!foundMdlcItem)
@@ -155,29 +162,29 @@ namespace NLog.Layouts.GelfLayout
         /// <summary>
         /// See http://docs.graylog.org/en/2.0/pages/gelf.html#gelf-payload-specification "Specification (version 1.0)"
         /// </summary>
-        private static void WriteGelfVersionLegacy(JsonWriter jsonWriter, LogEventInfo logEventInfo, string fullMessage, string shortMessage, string hostname, string facility)
+        private static void WriteGelfVersionLegacy(Utf8JsonWriter jsonWriter, LogEventInfo logEventInfo, string fullMessage, string shortMessage, string hostname, string facility)
         {
             jsonWriter.WritePropertyName("facility");
-            jsonWriter.WriteValue((string.IsNullOrEmpty(facility) ? "GELF" : facility));
+            jsonWriter.WriteStringValue((string.IsNullOrEmpty(facility) ? "GELF" : facility));
             string callSiteFileName = logEventInfo.CallerFilePath;
             if (string.IsNullOrEmpty(callSiteFileName))
                 callSiteFileName = logEventInfo.LoggerName ?? string.Empty;
             jsonWriter.WritePropertyName("file");
-            jsonWriter.WriteValue(callSiteFileName);
+            jsonWriter.WriteStringValue(callSiteFileName);
             jsonWriter.WritePropertyName("full_message");
-            jsonWriter.WriteValue(fullMessage);
+            jsonWriter.WriteStringValue(fullMessage);
             jsonWriter.WritePropertyName("host");
-            jsonWriter.WriteValue(hostname);
+            jsonWriter.WriteStringValue(hostname);
             jsonWriter.WritePropertyName("level");
-            jsonWriter.WriteValue(logEventInfo.Level.GetOrdinal());
+            jsonWriter.WriteNumberValue(logEventInfo.Level.GetOrdinal());
             jsonWriter.WritePropertyName("line");
-            jsonWriter.WriteValue(logEventInfo.CallerLineNumber);
+            jsonWriter.WriteNumberValue(logEventInfo.CallerLineNumber);
             jsonWriter.WritePropertyName("short_message");
-            jsonWriter.WriteValue(shortMessage);
+            jsonWriter.WriteStringValue(shortMessage);
             jsonWriter.WritePropertyName("timestamp");
-            jsonWriter.WriteValue(ToUnixTimeStamp(logEventInfo.TimeStamp));
+            jsonWriter.WriteNumberValue(ToUnixTimeStamp(logEventInfo.TimeStamp));
             jsonWriter.WritePropertyName("version");
-            jsonWriter.WriteValue(GelfVersion11);
+            jsonWriter.WriteStringValue(GelfVersion11);
         }
 
         /// <summary>
@@ -191,23 +198,23 @@ namespace NLog.Layouts.GelfLayout
         ///     file - optional, deprecated. Send as additional field instead.
         ///     line - optional, deprecated. Send as additional field instead.
         /// </remarks>
-        private static void WriteGelfVersion11(JsonWriter jsonWriter, LogEventInfo logEventInfo, string fullMessage, string shortMessage, string hostname)
+        private static void WriteGelfVersion11(Utf8JsonWriter jsonWriter, LogEventInfo logEventInfo, string fullMessage, string shortMessage, string hostname)
         {
             jsonWriter.WritePropertyName("version");
-            jsonWriter.WriteValue(GelfVersion11);
+            jsonWriter.WriteStringValue(GelfVersion11);
             jsonWriter.WritePropertyName("host");
-            jsonWriter.WriteValue(hostname);
+            jsonWriter.WriteStringValue(hostname);
             jsonWriter.WritePropertyName("short_message");
-            jsonWriter.WriteValue(shortMessage);
+            jsonWriter.WriteStringValue(shortMessage);
             jsonWriter.WritePropertyName("full_message");
-            jsonWriter.WriteValue(fullMessage);
+            jsonWriter.WriteStringValue(fullMessage);
             jsonWriter.WritePropertyName("timestamp");
-            jsonWriter.WriteValue(ToUnixTimeStamp(logEventInfo.TimeStamp));
+            jsonWriter.WriteNumberValue(ToUnixTimeStamp(logEventInfo.TimeStamp));
             jsonWriter.WritePropertyName("level");
-            jsonWriter.WriteValue(logEventInfo.Level.GetOrdinal());
+            jsonWriter.WriteNumberValue(logEventInfo.Level.GetOrdinal());
         }
 
-        private void AddLayoutGelfFields(JsonWriter jsonWriter, LogEventInfo logEventInfo, IList<GelfField> gelfFields, bool hasProperties, ICollection<string> mdlcKeys, ICollection<string> gdcKeys)
+        private void AddLayoutGelfFields(Utf8JsonWriter jsonWriter, LogEventInfo logEventInfo, IList<GelfField> gelfFields, bool hasProperties, ICollection<string> mdlcKeys, ICollection<string> gdcKeys)
         {
             for (int i = 0; i < gelfFields.Count; ++i)
             {
@@ -231,9 +238,9 @@ namespace NLog.Layouts.GelfLayout
                         continue;
                 }
 
-                if(gdcKeys != null)
+                if (gdcKeys != null)
                 {
-                    if(gdcKeys.Contains(gelfField.FieldName) || gdcKeys.Contains(gelfField.CleanName))
+                    if (gdcKeys.Contains(gelfField.FieldName) || gdcKeys.Contains(gelfField.CleanName))
                         continue;
                 }
 
@@ -245,27 +252,42 @@ namespace NLog.Layouts.GelfLayout
                 {
                     try
                     {
-                        if (gelfField.PropertyType == typeof(object))
+                        if (gelfField.PropertyType == typeof(int))
                         {
-                            using (var reader = new JsonTextReader(new StringReader(fieldValue)))
+                            if (int.TryParse(fieldValue, out var intValue))
+                                AddAdditionalField(jsonWriter, gelfField.FieldName, intValue);
+                        }
+                        else if (gelfField.PropertyType == typeof(long))
+                        {
+                            if (long.TryParse(fieldValue, out var longValue))
+                                AddAdditionalField(jsonWriter, gelfField.FieldName, longValue);
+                        }
+                        else if (gelfField.PropertyType == typeof(double))
+                        {
+                            if (double.TryParse(fieldValue, out var doubleValue))
+                                AddAdditionalField(jsonWriter, gelfField.FieldName, doubleValue);
+                        }
+                        else if (gelfField.PropertyType == typeof(bool))
+                        {
+                            if (bool.TryParse(fieldValue, out var boolValue))
+                                AddAdditionalField(jsonWriter, gelfField.FieldName, boolValue);
+                        }
+                        else if (gelfField.PropertyType == typeof(object))
+                        {
+                            // Use JsonDocument for JSON Objects
+                            using (var doc = JsonDocument.Parse(fieldValue))
                             {
-                                var jsonSerializer = JsonSerializer;
-                                lock (jsonSerializer)
-                                {
-                                    var fieldOject = jsonSerializer.Deserialize(reader, typeof(ExpandoObject));
-                                    AddAdditionalField(jsonWriter, gelfField.FieldName, fieldOject);
-                                }
+                                var dict = ParseJsonElement(doc.RootElement);
+                                AddAdditionalField(jsonWriter, gelfField.FieldName, dict);
                             }
                         }
                         else
                         {
-                            var fieldValueType = Convert.ChangeType(fieldValue, gelfField.PropertyType);
-                            AddAdditionalField(jsonWriter, gelfField.FieldName, fieldValueType);
+                            AddAdditionalField(jsonWriter, gelfField.FieldName, fieldValue);
                         }
                     }
                     catch (Exception ex)
                     {
-                        _jsonSerializer = null; // Maybe become broken
                         InternalLogger.Error(ex, "GelfConverter: Error while formatting field: {0} (Type={1})", gelfField.CleanName, gelfField.PropertyType.FullName);
                         if (LogManager.ThrowExceptions)
                             throw;
@@ -274,13 +296,66 @@ namespace NLog.Layouts.GelfLayout
             }
         }
 
+        private Dictionary<string, object> ParseJsonElement(JsonElement element)
+        {
+            var dict = new Dictionary<string, object>();
+
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    foreach (var property in element.EnumerateObject())
+                    {
+                        dict[property.Name] = ParseJsonValue(property.Value);
+                    }
+                    return dict;
+
+                default:
+                    dict["value"] = ParseJsonValue(element);
+                    return dict;
+            }
+        }
+
+        private object ParseJsonValue(JsonElement element)
+        {
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.String:
+                    return element.GetString();
+                case JsonValueKind.Number:
+                    if (element.TryGetInt32(out var intValue))
+                        return intValue;
+                    if (element.TryGetInt64(out var longValue))
+                        return longValue;
+                    if (element.TryGetDouble(out var doubleValue))
+                        return doubleValue;
+                    return element.GetDecimal();
+                case JsonValueKind.True:
+                    return true;
+                case JsonValueKind.False:
+                    return false;
+                case JsonValueKind.Null:
+                    return null;
+                case JsonValueKind.Array:
+                    var list = new List<object>();
+                    foreach (var item in element.EnumerateArray())
+                        list.Add(ParseJsonValue(item));
+                    return list.ToArray();
+                case JsonValueKind.Object:
+                    return ParseJsonElement(element);
+                default:
+                    return element.ToString();
+            }
+        }
+
         public static decimal ToUnixTimeStamp(DateTime timeStamp)
         {
             return Convert.ToDecimal(timeStamp.ToUniversalTime().Subtract(UnixDateStart).TotalSeconds);
         }
 
-        private void AddAdditionalField(JsonWriter jsonWriter, string key, object propertyValue)
+        // AOT compatible serialization without reflection
+        private void AddAdditionalField(Utf8JsonWriter jsonWriter, string key, object propertyValue)
         {
+            // Key processing
             if (key.IndexOf("-", StringComparison.OrdinalIgnoreCase) >= 0)
                 key = key.Replace('-', '_');
 
@@ -290,118 +365,205 @@ namespace NLog.Layouts.GelfLayout
 
             //According to the GELF spec, libraries should NOT allow to send id as additional field (_id)
             //Server MUST skip the field because it could override the MongoDB _key field
-            //id field overriten here as _idx to get around the issue id_ not a valid field and will be ignored by graylog
+            //id field overwritten here as _idx to get around the issue id_ not a valid field and will be ignored by Graylog
             if (key.Equals("_id", StringComparison.OrdinalIgnoreCase))
                 key = "_idx";
 
             jsonWriter.WritePropertyName(key);
-            var typeCode = Convert.GetTypeCode(propertyValue);
-            switch (typeCode)
-            {
-                case TypeCode.Empty:
-#if !NETSTANDARD1_3
-                case TypeCode.DBNull:
-#endif
-                    jsonWriter.WriteNull();
-                    return;
-                case TypeCode.Boolean:
-                    jsonWriter.WriteValue(Convert.ToBoolean(propertyValue));
-                    return;
-                case TypeCode.DateTime:
-                    jsonWriter.WriteValue(ToUnixTimeStamp(Convert.ToDateTime(propertyValue)));
-                    return;
-                case TypeCode.Char:
-                case TypeCode.String:
-                    var propertyString = propertyValue.ToString();
-                    if (propertyString.Length > FullMessageMaxLength)
-                    {
-                        propertyString = propertyString.Substring(0, FullMessageMaxLength);
-                    }
-                    jsonWriter.WriteValue(propertyString);
-                    return;
-                case TypeCode.Decimal:
-                    jsonWriter.WriteValue(Convert.ToDecimal(propertyValue));
-                    return;
-                case TypeCode.Double:
-                    jsonWriter.WriteValue(Convert.ToDouble(propertyValue));
-                    return;
-                case TypeCode.Single:
-                    jsonWriter.WriteValue(Convert.ToSingle(propertyValue));
-                    return;
-            }
 
-            if (typeCode != TypeCode.Object)
+            // AOT friendly typ handling without GetTypeCode()
+            switch (propertyValue)
             {
-                if (propertyValue is Enum)
-                {
-                    jsonWriter.WriteValue(propertyValue.ToString());
+                case null:
+                    jsonWriter.WriteNullValue();
                     return;
-                }
-                else
-                {
-                    switch (typeCode)
-                    {
-                        case TypeCode.Byte:
-                            jsonWriter.WriteValue(Convert.ToByte(propertyValue));
-                            return;
-                        case TypeCode.SByte:
-                            jsonWriter.WriteValue(Convert.ToSByte(propertyValue));
-                            return;
-                        case TypeCode.Int16:
-                            jsonWriter.WriteValue(Convert.ToInt16(propertyValue));
-                            return;
-                        case TypeCode.UInt16:
-                            jsonWriter.WriteValue(Convert.ToUInt16(propertyValue));
-                            return;
-                        case TypeCode.Int32:
-                            jsonWriter.WriteValue(Convert.ToInt32(propertyValue));
-                            return;
-                        case TypeCode.UInt32:
-                            jsonWriter.WriteValue(Convert.ToUInt32(propertyValue));
-                            return;
-                        case TypeCode.Int64:
-                            jsonWriter.WriteValue(Convert.ToInt64(propertyValue));
-                            return;
-                        case TypeCode.UInt64:
-                            jsonWriter.WriteValue(Convert.ToUInt64(propertyValue));
-                            return;
-                    }
-                }
-            }
 
-            try
-            {
-                var jsonSerializer = JsonSerializer;
-                lock (jsonSerializer)
-                {
-                    var jtoken = JToken.FromObject(propertyValue, jsonSerializer);
-                    jtoken.WriteTo(jsonWriter, _emptyJsonConverters);
-                }
-            }
-            catch (Exception ex)
-            {
-                _jsonSerializer = null; // Maybe become broken
-                InternalLogger.Warn(ex, "GelfConverter: Error while adding field: {0} (Type={1})", key, propertyValue.GetType().FullName);
-                if (LogManager.ThrowExceptions)
-                    throw;
+                case bool boolValue:
+                    jsonWriter.WriteBooleanValue(boolValue);
+                    return;
+
+                case byte byteValue:
+                    jsonWriter.WriteNumberValue(byteValue);
+                    return;
+
+                case sbyte sbyteValue:
+                    jsonWriter.WriteNumberValue(sbyteValue);
+                    return;
+
+                case short shortValue:
+                    jsonWriter.WriteNumberValue(shortValue);
+                    return;
+
+                case ushort ushortValue:
+                    jsonWriter.WriteNumberValue(ushortValue);
+                    return;
+
+                case int intValue:
+                    jsonWriter.WriteNumberValue(intValue);
+                    return;
+
+                case uint uintValue:
+                    jsonWriter.WriteNumberValue(uintValue);
+                    return;
+
+                case long longValue:
+                    jsonWriter.WriteNumberValue(longValue);
+                    return;
+
+                case ulong ulongValue:
+                    jsonWriter.WriteNumberValue(ulongValue);
+                    return;
+
+                case float floatValue:
+                    jsonWriter.WriteNumberValue(floatValue);
+                    return;
+
+                case double doubleValue:
+                    jsonWriter.WriteNumberValue(doubleValue);
+                    return;
+
+                case decimal decimalValue:
+                    jsonWriter.WriteNumberValue(decimalValue);
+                    return;
+
+                case DateTime dateTimeValue:
+                    jsonWriter.WriteNumberValue(ToUnixTimeStamp(dateTimeValue));
+                    return;
+
+                case string stringValue:
+                    if (stringValue.Length > FullMessageMaxLength)
+                        stringValue = stringValue.Substring(0, FullMessageMaxLength);
+                    jsonWriter.WriteStringValue(stringValue);
+                    return;
+
+                case char charValue:
+                    jsonWriter.WriteStringValue(charValue.ToString());
+                    return;
+
+                case Enum enumValue:
+                    jsonWriter.WriteStringValue(enumValue.ToString());
+                    return;
+
+                case Dictionary<string, object> dict:
+                    // for complex objects
+                    WriteObject(jsonWriter, dict);
+                    return;
+
+                default:
+                    // Fallback for unknown types
+                    try
+                    {
+                        if (JsonSerializer.IsReflectionEnabledByDefault)
+                        {
+                            // NOT AOT compatible!
+                            try
+                            {
+                                using (var memoryStream = new MemoryStream())
+                                {
+                                    using (var tempWriter = new Utf8JsonWriter(memoryStream, _jsonWriterOptions))
+                                    {
+                                        // This one is NOT AOT compatible
+                                        JsonSerializer.Serialize(tempWriter, propertyValue, propertyValue.GetType(), CreateJsonSerializerOptions());
+                                        tempWriter.Flush();
+
+                                        // Copy JSON without parsing
+                                        var json = Encoding.UTF8.GetString(memoryStream.ToArray());
+                                        jsonWriter.WriteRawValue(json);
+                                    }
+                                }
+                            }
+                            catch(Exception ex)
+                                                        {
+                                InternalLogger.Warn(ex, "GelfConverter: Error while serializing field: {0} (Type={1})", key, propertyValue.GetType().FullName);
+                                jsonWriter.WriteStringValue("[Error serializing value]");
+                            }
+                        }
+                        else // if AOT is enabled
+                        {
+                            // Fallback for unknown types (AOT compatible, but less information)
+                            jsonWriter.WriteStringValue(propertyValue.ToString());
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        InternalLogger.Warn(ex, "GelfConverter: Error while adding field: {0} (Type={1})", key, propertyValue.GetType().FullName);
+                        jsonWriter.WriteStringValue("[Error converting value]");
+                        if (LogManager.ThrowExceptions)
+                            throw;
+                    }
+                    return;
             }
         }
 
-        private static JsonSerializerSettings CreateJsonSerializerSettings()
+        private void WriteObject(Utf8JsonWriter writer, Dictionary<string, object> dict)
         {
-            var jsonSerializerSettings = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
-            jsonSerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
-            jsonSerializerSettings.Converters.Add(new JsonToStringConverter(typeof(System.Reflection.MemberInfo)));
-            jsonSerializerSettings.Converters.Add(new JsonToStringConverter(typeof(System.Reflection.Assembly)));
-            jsonSerializerSettings.Converters.Add(new JsonToStringConverter(typeof(System.Reflection.Module)));
-            jsonSerializerSettings.Converters.Add(new JsonToStringConverter(typeof(System.IO.Stream))); // Several Stream-properties throws exceptions
-            jsonSerializerSettings.Error = (sender, args) =>
+            writer.WriteStartObject();
+            foreach (var kvp in dict)
             {
-                InternalLogger.Debug(args.ErrorContext.Error, "GelfConverter: Error serializing property '{0}', property ignored", args.ErrorContext.Member);
-                if (!LogManager.ThrowExceptions)
-                    args.ErrorContext.Handled = true;
+                writer.WritePropertyName(kvp.Key);
+                WriteValue(writer, kvp.Value);
+            }
+            writer.WriteEndObject();
+        }
+
+        private void WriteValue(Utf8JsonWriter writer, object value)
+        {
+            switch (value)
+            {
+                case null:
+                    writer.WriteNullValue();
+                    break;
+                case bool b:
+                    writer.WriteBooleanValue(b);
+                    break;
+                case int i:
+                    writer.WriteNumberValue(i);
+                    break;
+                case long l:
+                    writer.WriteNumberValue(l);
+                    break;
+                case double d:
+                    writer.WriteNumberValue(d);
+                    break;
+                case decimal dec:
+                    writer.WriteNumberValue(dec);
+                    break;
+                case string s:
+                    writer.WriteStringValue(s);
+                    break;
+                case Dictionary<string, object> dict:
+                    WriteObject(writer, dict);
+                    break;
+                case Array array:
+                    writer.WriteStartArray();
+                    foreach (var item in array)
+                        WriteValue(writer, item);
+                    writer.WriteEndArray();
+                    break;
+                default:
+                    writer.WriteStringValue(value.ToString());
+                    break;
+            }
+        }
+
+        private static JsonSerializerOptions CreateJsonSerializerOptions()
+        {
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                WriteIndented = false,
+                PropertyNamingPolicy = null // Behalten Sie die originalen Property-Namen
             };
-            return jsonSerializerSettings;
+
+            options.Converters.Add(new JsonStringEnumConverter());
+            options.Converters.Add(new SystemTextJsonToStringConverter(typeof(System.Reflection.MemberInfo)));
+            options.Converters.Add(new SystemTextJsonToStringConverter(typeof(System.Reflection.Assembly)));
+            options.Converters.Add(new SystemTextJsonToStringConverter(typeof(System.Reflection.Module)));
+            options.Converters.Add(new SystemTextJsonToStringConverter(typeof(System.IO.Stream)));
+
+            return options;
         }
     }
 }
