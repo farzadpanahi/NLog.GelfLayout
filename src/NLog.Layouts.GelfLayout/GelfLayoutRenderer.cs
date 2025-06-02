@@ -6,12 +6,12 @@ using System.Text.Json;
 using NLog.LayoutRenderers;
 using NLog.Config;
 using System;
+using System.Text.Encodings.Web;
 
 namespace NLog.Layouts.GelfLayout
 {
     [LayoutRenderer("gelf")]
     [ThreadAgnostic]
-    [ThreadSafe]
     public class GelfLayoutRenderer : LayoutRenderer, IGelfConverterOptions
     {
         private readonly GelfConverter _converter = new GelfConverter();
@@ -91,7 +91,7 @@ namespace NLog.Layouts.GelfLayout
             {
                 using (var memoryStream = new MemoryStream())
                 {
-                    using (var jsonWriter = new Utf8JsonWriter(memoryStream, new JsonWriterOptions { Indented = false }))
+                    using (var jsonWriter = new Utf8JsonWriter(memoryStream, new JsonWriterOptions { Indented = false, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }))
                     {
                         _converter.ConvertToGelfMessage(jsonWriter, logEvent, this);
                         jsonWriter.Flush();

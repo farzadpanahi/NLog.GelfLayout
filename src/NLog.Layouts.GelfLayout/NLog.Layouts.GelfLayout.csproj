@@ -20,7 +20,8 @@
     <PackageLicense>https://raw.github.com/farzadpanahi/NLog.GelfLayout/master/LICENSE</PackageLicense>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>git://github.com/farzadpanahi/NLog.GelfLayout</RepositoryUrl>
-
+    
+    <!--<JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>-->
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>NLog.Layouts.GelfLayout.snk</AssemblyOriginatorKeyFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>

@@ -16,11 +16,8 @@ namespace NLog.Layouts.GelfLayout
 
         public override bool CanConvert(Type typeToConvert)
         {
-#if NETSTANDARD1_3
-            return _type.GetTypeInfo().IsAssignableFrom(typeToConvert.GetTypeInfo());
-#else
-            return _type.IsAssignableFrom(typeToConvert);
-#endif
+            // No reflection based checks in AOT
+            return typeToConvert == _type || typeToConvert.IsSubclassOf(_type);
         }
 
         public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
