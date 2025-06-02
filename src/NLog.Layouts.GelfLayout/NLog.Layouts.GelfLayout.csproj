@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net471;netstandard2.0;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>net471;netstandard2.0;net8.0;net9.0</TargetFrameworks>
 
     <Version>1.5</Version>
     <Title>NLog.GelfLayout</Title>
@@ -12,8 +12,8 @@
     <Copyright>Copyright 2020</Copyright>
 
     <PackageReleaseNotes>
-- Updated to NLog v4.7.15 (bug fixes)
-- Updated to Newtonsoft.Json v13.0.1 (bug fixes)
+- Updated to NLog v5.5.0
+- Replaced Newtonsoft.Json with System.Text.Json
     </PackageReleaseNotes>
     <PackageTags>NLog;Gelf;graylog2;Log;Logging</PackageTags>
     <PackageProjectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</PackageProjectUrl>
@@ -28,8 +28,27 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.7.15" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="NLog" Version="5.5.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471'">
+    <PackageReference Include="System.Text.Json">
+      <Version>9.0.5</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Text.Json">
+      <Version>9.0.5</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="System.Text.Json">
+      <Version>9.0.5</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="System.Text.Json">
+      <Version>9.0.5</Version>
+    </PackageReference>
   </ItemGroup>
 </Project>

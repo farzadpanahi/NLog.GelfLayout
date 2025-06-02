@@ -1,48 +1,43 @@
 ﻿using System;
 using System.Reflection;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NLog.Layouts.GelfLayout
 {
-    internal class JsonToStringConverter : JsonConverter
+    internal class SystemTextJsonToStringConverter : JsonConverter<object>
     {
         private readonly Type _type;
 
-        /// <inheritdoc />
-        public override bool CanRead { get; } = false;
-
-        public JsonToStringConverter(Type type)
+        public SystemTextJsonToStringConverter(Type type)
         {
             _type = type;
         }
 
-        /// <inheritdoc />
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override bool CanConvert(Type typeToConvert)
         {
-            if (value == null)
-            {
-                writer.WriteNull();
-            }
-            else
-            {
-                writer.WriteValue(value.ToString());
-            }
+#if NETSTANDARD1_3
+            return _type.GetTypeInfo().IsAssignableFrom(typeToConvert.GetTypeInfo());
+#else
+            return _type.IsAssignableFrom(typeToConvert);
+#endif
         }
 
-        /// <inheritdoc />
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             throw new NotSupportedException("Only serialization is supported");
         }
 
-        /// <inheritdoc />
-        public override bool CanConvert(Type objectType)
+        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
-#if NETSTANDARD1_3
-            return _type.GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
-#else
-            return _type.IsAssignableFrom(objectType);
-#endif
+            if (value == null)
+            {
+                writer.WriteNullValue();
+            }
+            else
+            {
+                writer.WriteStringValue(value.ToString());
+            }
         }
     }
 }

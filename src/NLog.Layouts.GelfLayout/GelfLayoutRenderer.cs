@@ -2,7 +2,7 @@
 using System.IO;
 using System.Globalization;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 using NLog.LayoutRenderers;
 using NLog.Config;
 using System;
@@ -87,20 +87,23 @@ namespace NLog.Layouts.GelfLayout
         protected override void Append(StringBuilder builder, LogEventInfo logEvent)
         {
             int orgLength = builder.Length;
-
             try
             {
-                // Write directly to StringBuilder, instead of allocating string first
-                using (StringWriter sw = new StringWriter(builder, CultureInfo.InvariantCulture))
+                using (var memoryStream = new MemoryStream())
                 {
-                    JsonTextWriter jw = new JsonTextWriter(sw);
-                    jw.Formatting = Formatting.None;
-                    _converter.ConvertToGelfMessage(jw, logEvent, this);
+                    using (var jsonWriter = new Utf8JsonWriter(memoryStream, new JsonWriterOptions { Indented = false }))
+                    {
+                        _converter.ConvertToGelfMessage(jsonWriter, logEvent, this);
+                        jsonWriter.Flush();
+                    }
+
+                    var json = Encoding.UTF8.GetString(memoryStream.ToArray());
+                    builder.Append(json);
                 }
             }
             catch
             {
-                builder.Length = orgLength; // Rewind, truncate
+                builder.Length = orgLength;
                 throw;
             }
         }
