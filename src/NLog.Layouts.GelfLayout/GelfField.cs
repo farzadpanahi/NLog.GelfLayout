@@ -1,6 +1,6 @@
-﻿using System;
+﻿using NLog.Config;
+using System;
 using System.ComponentModel;
-using NLog.Config;
 
 namespace NLog.Layouts.GelfLayout
 {

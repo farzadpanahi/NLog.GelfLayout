@@ -1,35 +1,37 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net471;netstandard2.0;netstandard1.3</TargetFrameworks>
+	<PropertyGroup>
+		<TargetFrameworks>net471;netstandard2.0;</TargetFrameworks>
+		<LangVersion>9.0</LangVersion>
 
-    <Version>1.5</Version>
-    <Title>NLog.GelfLayout</Title>
-    <PackageId>NLog.GelfLayout</PackageId>
-    <Company>Farzad Panahi</Company>
-    <Authors>Farzad Panahi, Tamas Kiss</Authors>
-    <Description>Gelf layout renderer for NLog</Description>
-    <Copyright>Copyright 2020</Copyright>
+		<Version>1.5</Version>
+		<Title>Bpn.NLog.GelfLayout</Title>
+		<PackageId>Bpn.NLog.GelfLayout</PackageId>
+		<Company>Farzad Panahi, BPN</Company>
+		<Authors>Farzad Panahi, Tamas Kiss, BPN</Authors>
+		<Description>Gelf layout renderer for NLog</Description>
+		<Copyright>Copyright 2020</Copyright>
 
-    <PackageReleaseNotes>
-- Updated to NLog v4.7.15 (bug fixes)
-- Updated to Newtonsoft.Json v13.0.1 (bug fixes)
-    </PackageReleaseNotes>
-    <PackageTags>NLog;Gelf;graylog2;Log;Logging</PackageTags>
-    <PackageProjectUrl>https://github.com/farzadpanahi/NLog.GelfLayout</PackageProjectUrl>
-    <PackageLicense>https://raw.github.com/farzadpanahi/NLog.GelfLayout/master/LICENSE</PackageLicense>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>git://github.com/farzadpanahi/NLog.GelfLayout</RepositoryUrl>
+		<PackageReleaseNotes>
+			- Updated to NLog v4.7.15 (bug fixes)
+			- Updated to Newtonsoft.Json v13.0.1 (bug fixes)
+		</PackageReleaseNotes>
+		<PackageTags>NLog;Gelf;graylog2;Log;Logging</PackageTags>
+		<PackageProjectUrl>https://github.com/BpnOdeme/NLog.GelfLayout</PackageProjectUrl>
+		<PackageLicense>https://raw.github.com/farzadpanahi/NLog.GelfLayout/master/LICENSE</PackageLicense>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>git://github.com/BpnOdeme/NLog.GelfLayout</RepositoryUrl>
 
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>NLog.Layouts.GelfLayout.snk</AssemblyOriginatorKeyFile>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="NLog" Version="4.7.15" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-  </ItemGroup>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>NLog.Layouts.GelfLayout.snk</AssemblyOriginatorKeyFile>
+		<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="NLog" Version="6.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
+	</ItemGroup>
 </Project>

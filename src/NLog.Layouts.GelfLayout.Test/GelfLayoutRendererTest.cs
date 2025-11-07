@@ -22,7 +22,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfRenderer = new GelfLayoutRenderer();
 
             gelfRenderer.Facility = facility;
@@ -66,7 +66,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfRenderer = new GelfLayoutRenderer();
 
             gelfRenderer.IncludeLegacyFields = false;
@@ -107,7 +107,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = $"stringVal 1 {TestMsgEnum.Enum1} {dateTime.AddMinutes(-1)}";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfRenderer = new GelfLayoutRenderer();
             string stringKey = "stringKey";
             string stringVal = "stringVal";
@@ -179,7 +179,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Fatal;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var exception = FakeException.Throw();
             var gelfRenderer = new GelfLayoutRenderer();
 
@@ -240,7 +240,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfRenderer = new GelfLayoutRenderer();
 
             gelfRenderer.Facility = facility;
@@ -291,7 +291,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfRenderer = new GelfLayoutRenderer();
 
             gelfRenderer.Facility = facility;
@@ -342,7 +342,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfLayout = new GelfLayout();
 
             gelfLayout.Facility = facility;
@@ -390,7 +390,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfLayout = new GelfLayout();
             gelfLayout.Facility = facility;
             gelfLayout.IncludeEventProperties = true;
@@ -437,7 +437,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfLayout = new GelfLayout();
             gelfLayout.Facility = facility;
             gelfLayout.IncludeEventProperties = true;
@@ -483,7 +483,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfRenderer = new GelfLayoutRenderer();
 
             gelfRenderer.Facility = facility;
@@ -528,7 +528,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfRenderer = new GelfLayoutRenderer();
 
             gelfRenderer.IncludeLegacyFields = false;
@@ -570,7 +570,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = $"stringVal 1 {GelfLayoutRendererTest.TestMsgEnum.Enum1} {dateTime.AddMinutes(-1)}";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfRenderer = new GelfLayoutRenderer();
             string stringKey = "stringKey";
             string stringVal = "stringVal";
@@ -645,7 +645,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Fatal;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var exception = FakeException.Throw();
             var gelfRenderer = new GelfLayoutRenderer();
 
@@ -710,7 +710,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfRenderer = new GelfLayoutRenderer();
 
             gelfRenderer.Facility = facility;
@@ -762,7 +762,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfRenderer = new GelfLayoutRenderer();
 
             gelfRenderer.Facility = facility;
@@ -815,7 +815,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfLayout = new GelfLayout();
 
             gelfLayout.Facility = facility;
@@ -866,7 +866,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfLayout = new GelfLayout();
             gelfLayout.Facility = facility;
             gelfLayout.IncludeEventProperties = true;
@@ -916,7 +916,7 @@ namespace NLog.Layouts.GelfLayout.Test
             var dateTime = DateTime.Now;
             var message = "hello, gelf :)";
             var logLevel = LogLevel.Info;
-            var hostname = Dns.GetHostName();
+            var hostname = Dns.GetHostName().ToUpper();
             var gelfLayout = new GelfLayout();
             gelfLayout.Facility = facility;
             gelfLayout.IncludeEventProperties = true;

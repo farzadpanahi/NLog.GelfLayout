@@ -1,7 +1,7 @@
-﻿using System;
+﻿using NLog.Config;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using NLog.Config;
 
 namespace NLog.Layouts.GelfLayout
 {
@@ -10,7 +10,7 @@ namespace NLog.Layouts.GelfLayout
     [ThreadAgnostic]
     public class GelfLayout : Layout, IGelfConverterOptions
     {
-        private readonly GelfLayoutRenderer _renderer = new GelfLayoutRenderer();
+        private readonly GelfLayoutRenderer _renderer = new();
 
         public GelfLayout()
         {
@@ -56,10 +56,10 @@ namespace NLog.Layouts.GelfLayout
 
         /// <inheritdoc/>
         public Layout FullMessage { get => _renderer.FullMessage; set => _renderer.FullMessage = value; }
-        
+
         /// <inheritdoc/>
         public Layout ShortMessage { get => _renderer.ShortMessage; set => _renderer.ShortMessage = value; }
-        
+
         /// <inheritdoc/>
         protected override void RenderFormattedMessage(LogEventInfo logEvent, StringBuilder target)
         {

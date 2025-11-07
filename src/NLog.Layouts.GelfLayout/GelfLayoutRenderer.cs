@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Globalization;
-using System.Text;
-using Newtonsoft.Json;
-using NLog.LayoutRenderers;
+﻿using Newtonsoft.Json;
 using NLog.Config;
+using NLog.LayoutRenderers;
+using NLog.Layouts.GelfLayout.Features.Masking;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Text;
 
 namespace NLog.Layouts.GelfLayout
 {
@@ -14,13 +15,26 @@ namespace NLog.Layouts.GelfLayout
     [ThreadSafe]
     public class GelfLayoutRenderer : LayoutRenderer, IGelfConverterOptions
     {
-        private readonly GelfConverter _converter = new GelfConverter();
+        private readonly GelfConverter _converter;
 
         internal static readonly Layout _disableThreadAgnostic = "${threadid:cached=true}";
 
         public GelfLayoutRenderer()
         {
+
             IncludeEventProperties = true;
+            try
+            {
+                var masking = ResolveService<IMaskingService>(); // artık provider bağlı
+                _converter = masking != null
+                    ? new GelfConverter(masking)
+                    : new GelfConverter();
+            }
+            catch (Exception)
+            {
+                _converter = new GelfConverter();
+            }
+
         }
 
         /// <summary>
@@ -56,18 +70,23 @@ namespace NLog.Layouts.GelfLayout
             set
             {
                 _facility = value;
-                if (!_includeLegacyFields.HasValue && value != null && !(value is SimpleLayout simpleLayout && simpleLayout.IsFixedText && string.IsNullOrEmpty(simpleLayout.FixedText)))
+                if (!_includeLegacyFields.HasValue && value != null &&
+                    !(value is SimpleLayout simpleLayout &&
+                    simpleLayout.IsFixedText &&
+                    string.IsNullOrEmpty(simpleLayout.FixedText)))
+                {
                     IncludeLegacyFields = true;
+                }
             }
         }
         private Layout _facility;
 
         /// <inheritdoc/>
         public Layout HostName { get; set; } = "${hostname}";
-        
+
         /// <inheritdoc/>
         public Layout FullMessage { get; set; } = "${message}";
-        
+
         /// <inheritdoc/>
         public Layout ShortMessage { get; set; } = "${message}";
 
@@ -75,9 +94,7 @@ namespace NLog.Layouts.GelfLayout
 
         internal IList<GelfField> ExtraFields { get; set; }
 
-        public ISet<string> ExcludeProperties { get; set; } = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
-
-
+        public ISet<string> ExcludeProperties { get; set; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         internal void RenderAppend(LogEventInfo logEvent, StringBuilder builder)
         {
@@ -91,10 +108,12 @@ namespace NLog.Layouts.GelfLayout
             try
             {
                 // Write directly to StringBuilder, instead of allocating string first
-                using (StringWriter sw = new StringWriter(builder, CultureInfo.InvariantCulture))
+                using (StringWriter sw = new(builder, CultureInfo.InvariantCulture))
                 {
-                    JsonTextWriter jw = new JsonTextWriter(sw);
-                    jw.Formatting = Formatting.None;
+                    JsonTextWriter jw = new JsonTextWriter(sw)
+                    {
+                        Formatting = Formatting.None
+                    };
                     _converter.ConvertToGelfMessage(jw, logEvent, this);
                 }
             }

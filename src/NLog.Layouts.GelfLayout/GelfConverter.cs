@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using NLog.Common;
+using NLog.Layouts.GelfLayout.Features.Masking;
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
-using System.Net;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NLog.Common;
 
 namespace NLog.Layouts.GelfLayout
 {
@@ -14,18 +14,92 @@ namespace NLog.Layouts.GelfLayout
         private const int ShortMessageMaxLength = 250;
         private const int FullMessageMaxLength = 16383; // Truncate due to: https://github.com/Graylog2/graylog2-server/issues/873
         private const string GelfVersion11 = "1.1";
-        private static DateTime UnixDateStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        private static DateTime UnixDateStart = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private static readonly JsonSerializerSettings _jsonSerializerSettings = CreateJsonSerializerSettings();
         private static readonly JsonConverter[] _emptyJsonConverters = new JsonConverter[0];
-        private JsonSerializer JsonSerializer => _jsonSerializer ?? (_jsonSerializer = JsonSerializer.CreateDefault(_jsonSerializerSettings));
+
+        private JsonSerializer JsonSerializer => _jsonSerializer ??= JsonSerializer.CreateDefault(_jsonSerializerSettings);
         private JsonSerializer _jsonSerializer;
 
-        private static readonly HashSet<string> ExcludePropertyKeys = new HashSet<string>(new string[] { "LoggerName", "_LoggerName", "ExceptionSource", "_ExceptionSource", "ExceptionMessage", "_ExceptionMessage", "ExceptionType", "_ExceptionType", "StackTrace", "_StackTrace" }, StringComparer.OrdinalIgnoreCase);
+        private static readonly HashSet<string> ExcludePropertyKeys = new(
+            new string[]
+            {
+                "LoggerName", "_LoggerName", "ExceptionSource", "_ExceptionSource", "ExceptionMessage",
+                "_ExceptionMessage", "ExceptionType", "_ExceptionType", "StackTrace", "_StackTrace"
+            }, StringComparer.OrdinalIgnoreCase);
 
         private string _hostName;
 
+        private readonly IMaskingService _maskingService;
+
+        public GelfConverter()
+        {
+        }
+
+        public GelfConverter(IMaskingService maskingService)
+        {
+            _maskingService = maskingService;
+        }
+
+        private void MaskLogEventInfo(LogEventInfo logEventInfo)
+        {
+            if (_maskingService is null)
+            {
+                return;
+            }
+
+            try
+            {
+                var ev = logEventInfo;
+
+                // 1) Parameters (Graylog target çoğu zaman buradan alan üretir)
+                if (ev.Parameters is { Length: > 0 })
+                {
+                    var p = ev.Parameters;
+                    var clone = new object[p.Length];
+                    for (int i = 0; i < p.Length; i++)
+                        clone[i] = _maskingService.Mask(p[i]) ?? p[i]!;
+                    ev.Parameters = clone;
+                }
+
+                // 2) Event Properties (WithProperty, message template captured props)
+                if (ev.HasProperties)
+                {
+                    // Kopya sözlük oluştur: orijinali bozmayalım
+                    var newDict = new Dictionary<object, object?>(ev.Properties.Count);
+                    foreach (var kv in ev.Properties)
+                    {
+                        var key = kv.Key?.ToString() ?? string.Empty;
+
+                        // Exclude kararı MaskingEngine içinde veriliyor (dict/object seviyesinde)
+                        var masked = _maskingService.Mask(kv.Value);
+
+                        // Exclude edilen alanlar Transform sırasında düşürüldüğü için
+                        // burada null dönebilir; null ise hiç eklemeyelim.
+                        if (masked is not null)
+                        {
+                            newDict[kv.Key!] = masked;
+                        }
+                    }
+
+                    ev.Properties.Clear();
+                    foreach (var kv in newDict)
+                    {
+                        ev.Properties[kv.Key] = kv.Value;
+                    }
+                }
+            }
+            catch
+            {
+                // Masking'de bir şey patlarsa, log'u tamamen düşürmeyelim
+            }
+        }
+
         public void ConvertToGelfMessage(JsonWriter jsonWriter, LogEventInfo logEventInfo, IGelfConverterOptions converterOptions)
         {
+            MaskLogEventInfo(logEventInfo);
+
             //Retrieve the formatted message from LogEventInfo
             var fullMessage = converterOptions.FullMessage?.Render(logEventInfo) ?? string.Empty;
             if (fullMessage.Length > FullMessageMaxLength)
@@ -120,12 +194,12 @@ namespace NLog.Layouts.GelfLayout
             }
 
             ICollection<string> gdcKeys = null;
-            if(converterOptions.IncludeGdc)
+            if (converterOptions.IncludeGdc)
             {
                 gdcKeys = GlobalDiagnosticsContext.GetNames();
                 bool foundGdcItem = false;
                 bool hasExcludedProperties = converterOptions.ExcludeProperties?.Count > 0;
-                foreach(string key in gdcKeys)
+                foreach (string key in gdcKeys)
                 {
                     if (string.IsNullOrEmpty(key) || ExcludePropertyKeys.Contains(key))
                         continue;
@@ -133,7 +207,7 @@ namespace NLog.Layouts.GelfLayout
                     if (hasProperties && logEventInfo.Properties.ContainsKey(key))
                         continue;
 
-                    if(hasExcludedProperties && converterOptions.ExcludeProperties.Contains(key))
+                    if (hasExcludedProperties && converterOptions.ExcludeProperties.Contains(key))
                         continue;
 
                     foundGdcItem = true;
@@ -231,9 +305,9 @@ namespace NLog.Layouts.GelfLayout
                         continue;
                 }
 
-                if(gdcKeys != null)
+                if (gdcKeys != null)
                 {
-                    if(gdcKeys.Contains(gelfField.FieldName) || gdcKeys.Contains(gelfField.CleanName))
+                    if (gdcKeys.Contains(gelfField.FieldName) || gdcKeys.Contains(gelfField.CleanName))
                         continue;
                 }
 
